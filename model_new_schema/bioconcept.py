@@ -4,7 +4,6 @@ Created on Nov 28, 2012
 @author: kpaskov
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.config import SCHEMA
 from model_new_schema.link_maker import add_link, biocon_link
 from model_new_schema.misc import Alias
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -16,7 +15,6 @@ from sqlalchemy.types import Integer, String, Date
 
 class Bioconcept(Base, EqualityByIDMixin):
     __tablename__ = "biocon"
-    __table_args__ = {'schema': SCHEMA, 'extend_existing':True}
         
     id = Column('biocon_id', Integer, primary_key = True)
     biocon_type = Column('biocon_type', String)

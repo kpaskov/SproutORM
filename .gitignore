@@ -1,3 +1,9 @@
 *.class
 *.pyc
 *.pyo
+bin
+develop-eggs
+eggs
+parts
+sprout_orm.egg-info
+src
