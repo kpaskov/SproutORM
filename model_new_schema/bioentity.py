@@ -144,7 +144,7 @@ class Locus(Bioentity):
     id = Column('bioent_id', Integer, ForeignKey(Bioentity.id), primary_key=True)
     qualifier = Column('qualifier', String)
     attribute = Column('attribute', String)
-    name_description = Column('short_description', String)
+    name_description = Column('name_description', String)
     headline = Column('headline', String)
     description = Column('description', String)
     genetic_position = Column('genetic_position', String)
