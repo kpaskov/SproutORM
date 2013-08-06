@@ -28,6 +28,6 @@ setup(name='sprout_orm',
       install_requires=requires,
       entry_points="""\
       [paste.app_factory]
-      main = schema_conversion:main
+      main = model_new_schema:main
       """,
       )

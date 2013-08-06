@@ -56,9 +56,12 @@ class InteractionFamily(Base, EqualityByIDMixin):
     bioent1_link = Column('bioent1_link', String)
     bioent2_link = Column('bioent2_link', String)
     evidence_count = Column('evidence_count', Integer)
+    genetic_ev_count = Column('gen_ev_count', Integer)
+    physical_ev_count = Column('phys_ev_count', Integer)
     
     def __init__(self, bioent_id, bioent1_id, bioent2_id, 
-                 bioent1_display_name, bioent2_display_name, bioent1_link, bioent2_link, evidence_count):
+                 bioent1_display_name, bioent2_display_name, bioent1_link, bioent2_link, 
+                 genetic_ev_count, physical_ev_count, evidence_count):
         self.bioent_id = bioent_id
         self.bioent1_id = bioent1_id
         self.bioent2_id = bioent2_id
@@ -66,6 +69,8 @@ class InteractionFamily(Base, EqualityByIDMixin):
         self.bioent2_display_name = bioent2_display_name
         self.bioent1_link = bioent1_link
         self.bioent2_link = bioent2_link
+        self.genetic_ev_count = genetic_ev_count
+        self.physical_ev_count = physical_ev_count
         self.evidence_count = evidence_count
         
     def unique_key(self):
