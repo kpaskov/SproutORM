@@ -234,7 +234,7 @@ class AuthorReference(Base, EqualityByIDMixin):
     
     author = relationship(Author, backref=backref('author_references', passive_deletes=True), uselist=False) 
     reference = relationship(Reference, backref=backref('author_references', passive_deletes=True), uselist=False)
-    author_name = association_proxy('author', 'name')
+    author_name = association_proxy('author', 'display_name')
         
     def __init__(self, author_reference_id, author_id, reference_id, order, author_type):
         self.id = author_reference_id

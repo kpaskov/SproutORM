@@ -77,12 +77,16 @@ class Phenoevidence(Evidence):
     __mapper_args__ = {'polymorphic_identity': "PHENOTYPE_EVIDENCE",
                        'inherit_condition': id==Evidence.id}
     
-    def __init__(self, evidence_id, experiment_type, reference_id, strain_id, source,
+    def __init__(self, evidence_id, experiment_type, experiment_name_with_link, 
+                 reference_id, reference_name_with_link, reference_citation, 
+                 strain_id, strain_name_with_link, source,
                  bioent_id, biocon_id,
                  mutant_allele_id, allele_info,
                  reporter, reporter_desc, strain_details, experiment_details, conditions, details,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, experiment_type, reference_id, 'PHENOTYPE_EVIDENCE', strain_id, source, date_created, created_by)
+        Evidence.__init__(self, evidence_id, experiment_type, experiment_name_with_link,
+                          reference_id, reference_name_with_link, reference_citation,
+                          strain_id, strain_name_with_link, source, 'PHENOTYPE_EVIDENCE', date_created, created_by)
         self.bioent_id = bioent_id
         self.biocon_id = biocon_id
         
