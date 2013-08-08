@@ -4,8 +4,7 @@ Created on Jun 4, 2013
 @author: kpaskov
 '''
 from model_new_schema import Base
-from model_new_schema.link_maker import add_link, chemical_link
-from model_new_schema.misc import Alias, Altid
+from model_new_schema.misc import Alias
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
@@ -18,6 +17,7 @@ class Chemical(Base):
     id = Column('chemical_id', Integer, primary_key=True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     source = Column('source', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
@@ -25,9 +25,10 @@ class Chemical(Base):
     #Relationships
     aliases = association_proxy('chemaliases', 'name')
     
-    def __init__(self, display_name, format_name, source, date_created, created_by):
+    def __init__(self, display_name, format_name, link, source, date_created, created_by):
         self.display_name = display_name
         self.format_name = format_name
+        self.link = link
         self.source = source
         self.date_created = date_created
         self.created_by = created_by
@@ -37,13 +38,7 @@ class Chemical(Base):
     
     @hybrid_property
     def alias_str(self):
-        return ', '.join(self.aliases)
-    @hybrid_property
-    def name_with_link(self):
-        return add_link(self.display_name, self.link)
-    @hybrid_property
-    def link(self):
-        return chemical_link(self)       
+        return ', '.join(self.aliases)      
         
 class ChemicalRelation(Base):
     __tablename__ = "chemicalrel"
@@ -86,22 +81,6 @@ class ChemicalAlias(Alias):
         
     def unique_key(self):
         return (self.name, self.chemical_id)
-    
-class ChemicalAltid(Altid):
-    __tablename__ = 'chemicalaltid'
-    
-    id = Column('altid_id', Integer, ForeignKey(Altid.id), primary_key=True)
-    chemical_id = Column('chemical_id', Integer, ForeignKey(Chemical.id))
-    
-    __mapper_args__ = {'polymorphic_identity': 'CHEMICAL_ALTID',
-                       'inherit_condition': id == Altid.id}
-        
-    #Relationships
-    chemical = relationship(Chemical, uselist=False, backref=backref('altids', passive_deletes=True))
-        
-    def __init__(self, identifier, source, altid_name, chemical_id, date_created, created_by):
-        Altid.__init__(self, identifier, 'CHEMICAL_ALTID', source, altid_name, date_created, created_by)
-        self.chemical_id = chemical_id
         
         
         

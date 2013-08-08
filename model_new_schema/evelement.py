@@ -5,9 +5,7 @@ Created on Jun 10, 2013
 '''
 
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.link_maker import add_link, experiment_link, strain_link
-from model_new_schema.misc import Altid
-from sqlalchemy.ext.hybrid import hybrid_property
+from model_new_schema.misc import Alias
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, Date
@@ -18,27 +16,22 @@ class Experiment(Base, EqualityByIDMixin):
     id = Column('experiment_id', Integer, primary_key=True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     description = Column('description', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String) 
     
-    def __init__(self, experiment_id, display_name, format_name, description, date_created, created_by):
+    def __init__(self, experiment_id, display_name, format_name, link, description, date_created, created_by):
         self.id = experiment_id
         self.display_name = display_name
         self.format_name = format_name
+        self.link = link
         self.description = description
         self.date_created = date_created
         self.created_by = created_by
         
     def unique_key(self):
         return self.format_name
-
-    @hybrid_property
-    def link(self):
-        return experiment_link(self)
-    @hybrid_property
-    def name_with_link(self):
-        return add_link(self.display_name, self.link) 
     
     
 class ExperimentRelation(Base, EqualityByIDMixin):
@@ -64,20 +57,20 @@ class ExperimentRelation(Base, EqualityByIDMixin):
     def unique_key(self):
         return (self.parent_id, self.child_id)
         
-class ExperimentAltid(Altid):
-    __tablename__ = 'experimentaltid'
+class ExperimentAlias(Alias):
+    __tablename__ = 'experimentalias'
     
-    id = Column('altid_id', Integer, ForeignKey(Altid.id), primary_key=True)
+    id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)
     experiment_id = Column('experiment_id', Integer, ForeignKey(Experiment.id))
     
-    __mapper_args__ = {'polymorphic_identity': 'EXPERIMENT_ALTID',
-                       'inherit_condition': id == Altid.id}
+    __mapper_args__ = {'polymorphic_identity': 'EXPERIMENT_ALIAS',
+                       'inherit_condition': id == Alias.id}
         
     #Relationships
     reference = relationship(Experiment, uselist=False, backref=backref('altids', passive_deletes=True))
         
-    def __init__(self, identifier, source, altid_name, experiment_id, date_created, created_by):
-        Altid.__init__(self, identifier, 'EXPERIMENT_ALTID', source, altid_name, date_created, created_by)
+    def __init__(self, display_name, source, category, experiment_id, date_created, created_by):
+        Alias.__init__(self, 'EXPERIMENT_ALIAS', display_name, source, category, date_created, created_by)
         self.experiment_id = experiment_id
 
 class Strain(Base, EqualityByIDMixin):
@@ -86,23 +79,19 @@ class Strain(Base, EqualityByIDMixin):
     id = Column('strain_id', Integer, primary_key = True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     description = Column('description', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String) 
     
-    def __init__(self, strain_id, display_name, format_name, description, date_created, created_by):
+    def __init__(self, strain_id, display_name, format_name, link, description, date_created, created_by):
         self.id = strain_id
         self.display_name = display_name;
         self.format_name = format_name
+        self.link = link
         self.date_created = date_created
         self.created_by = created_by
         
     def unique_key(self):
         return self.format_name
     
-    @hybrid_property
-    def link(self):
-        return strain_link(self)
-    @hybrid_property
-    def name_with_link(self):
-        return add_link(self.display_name, self.link) 

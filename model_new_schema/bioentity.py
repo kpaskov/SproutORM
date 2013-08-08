@@ -8,8 +8,7 @@ will eventually be the Bioentity classes/tables in the new SGD website schema. T
 schema on fasolt.
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.link_maker import add_link, bioent_link, bioent_wiki_link
-from model_new_schema.misc import Alias, Url, Altid
+from model_new_schema.misc import Alias, Url
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
@@ -22,7 +21,7 @@ class Bioentity(Base, EqualityByIDMixin):
     id = Column('bioent_id', Integer, primary_key=True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
-    name_with_link = Column('name_with_link', String)
+    link = Column('obj_link', String)
     bioent_type = Column('bioent_type', String)
     source = Column('source', String)
     status = Column('status', String)
@@ -34,56 +33,28 @@ class Bioentity(Base, EqualityByIDMixin):
                        'polymorphic_identity':"BIOENTITY"}
     
     #Relationships
-    bioconcepts = association_proxy('biofacts', 'bioconcept')
     aliases = association_proxy('bioentaliases', 'name')
-    seq_ids = association_proxy('sequences', 'id')
     type = "BIOENTITY"
             
-    def __init__(self, bioent_id, display_name, format_name, bioent_type, source, status,
+    def __init__(self, bioent_id, bioent_type, display_name, format_name, link, source, status,
                  date_created, created_by):
         self.id = bioent_id
+        self.bioent_type = bioent_type
         self.display_name = display_name
         self.format_name = format_name
-        self.bioent_type = bioent_type
+        self.link = link
         self.source = source
         self.status = status
-        self.name_with_link = add_link(self.display_name, bioent_link(self))
         self.date_created = date_created
         self.created_by = created_by
             
     def unique_key(self):
         return (self.format_name, self.bioent_type)
     
-    #Database hybrid properties
-    @hybrid_property
-    def biorelations(self):
-        return set(self.biorel_source + self.biorel_sink)
     @hybrid_property
     def alias_str(self):
         return ', '.join(self.aliases)
     
-    #Names and links     
-    @hybrid_property
-    def full_name(self, include_link=True):
-        return self.display_name + ' (' + self.format_name + ')'
-    @hybrid_property
-    def link(self):
-        return bioent_link(self)
-    @hybrid_property
-    def full_name_with_link(self):
-        return add_link(self.full_name, self.link) 
-    @hybrid_property
-    def wiki_name_with_link(self):
-        return add_link(self.wiki_link, self.wiki_link)
-    @hybrid_property
-    def wiki_link(self):
-        return bioent_wiki_link(self)    
-    @hybrid_property
-    def search_entry_title(self):
-        return self.full_name_with_link
-    @hybrid_property
-    def search_description(self):
-        return self.description
     
 class BioentAlias(Alias):
     __tablename__ = 'bioentalias'
@@ -103,22 +74,6 @@ class BioentAlias(Alias):
         
     def unique_key(self):
         return (self.name, self.bioent_id)
-    
-class BioentAltid(Altid):
-    __tablename__ = 'bioentaltid'
-    
-    id = Column('altid_id', Integer, ForeignKey(Altid.id), primary_key=True)
-    bioent_id = Column('bioent_id', Integer, ForeignKey(Bioentity.id))
-    
-    __mapper_args__ = {'polymorphic_identity': 'BIOENT_ALTID',
-                       'inherit_condition': id == Altid.id}
-        
-    #Relationships
-    bioent = relationship(Bioentity, uselist=False, backref=backref('altids', passive_deletes=True))
-        
-    def __init__(self, identifier, source, altid_name, bioent_id, date_created, created_by):
-        Altid.__init__(self, identifier, 'BIOENT_ALTID', source, altid_name, date_created, created_by)
-        self.bioent_id = bioent_id
     
 class BioentUrl(Url):
     __tablename__ = 'bioenturl'
@@ -150,26 +105,14 @@ class Locus(Bioentity):
     genetic_position = Column('genetic_position', String)
     locus_type = Column('locus_type', String)
     type = "LOCUS"
-    
-    transcript_ids = association_proxy('transcripts', 'id')
-    
+        
     __mapper_args__ = {'polymorphic_identity': 'LOCUS',
                        'inherit_condition': id == Bioentity.id}
     
-    
-    @hybrid_property
-    def search_additional(self):
-        if len(self.aliases) > 0:
-            return 'Aliases: ' + self.alias_str
-        return None
-    @hybrid_property
-    def search_entry_type(self):
-        return 'Locus'
-
-    def __init__(self, bioent_id, display_name, format_name, source, status,
+    def __init__(self, bioent_id, display_name, format_name, link, source, status, 
                  locus_type, qualifier, attribute, short_description, headline, description, genetic_position,
                  date_created, created_by):
-        Bioentity.__init__(self, bioent_id, display_name, format_name, 'LOCUS', source, status, date_created, created_by)
+        Bioentity.__init__(self, bioent_id, 'LOCUS',  display_name, format_name, link, source, status, date_created, created_by)
         self.locus_type = locus_type
         self.qualifier = qualifier
         self.attribute = attribute
@@ -192,8 +135,8 @@ class DNA(Bioentity):
     def search_entry_type(self):
         return 'DNA'
 
-    def __init__(self, bioent_id, display_name, format_name, date_created, created_by):
-        Bioentity.__init__(self, bioent_id, display_name, format_name, 'DNA', 'SGD', None, date_created, created_by)
+    def __init__(self, bioent_id, display_name, format_name, link, date_created, created_by):
+        Bioentity.__init__(self, bioent_id, 'DNA', display_name, format_name, link, 'SGD', None, date_created, created_by)
 
 class RNA(Bioentity):
     __tablename__ = 'rna'
@@ -209,8 +152,8 @@ class RNA(Bioentity):
     def search_entry_type(self):
         return 'DNA'
 
-    def __init__(self, bioent_id, display_name, format_name, date_created, created_by):
-        Bioentity.__init__(self, bioent_id, display_name, format_name, 'RNA', 'SGD', None, date_created, created_by)
+    def __init__(self, bioent_id, display_name, format_name, link, date_created, created_by):
+        Bioentity.__init__(self, bioent_id, 'RNA', display_name, format_name, link, 'SGD', None, date_created, created_by)
 
 
 class Protein(Bioentity):
@@ -278,14 +221,14 @@ class Protein(Bioentity):
     def get_percent_aa(self, aa_abrev):
         return "{0:.2f}".format(100*float(getattr(self, aa_abrev))/self.length) + '%'
 
-    def __init__(self, bioent_id, display_name, format_name, 
+    def __init__(self, bioent_id, display_name, format_name, link,
                  molecular_weight, pi, cai, length, n_term_seq, c_term_seq,
                  codon_bias, fop_score, gravy_score, aromaticity_score, 
                  ala, arg, asn, asp, cys, gln, glu, gly, his, ile, leu, lys, met, phe, pro, thr, ser, trp, tyr, val, 
                  aliphatic_index, atomic_comp_H, atomic_comp_S, atomic_comp_N, atomic_comp_O, atomic_comp_C,
                  instability_index, molecules_per_cell,
                  date_created, created_by):
-        Bioentity.__init__(self, bioent_id, display_name, format_name, 'PROTEIN', 'SGD', None, date_created, created_by)
+        Bioentity.__init__(self, bioent_id, 'PROTEIN', display_name, format_name, link, 'SGD', None, date_created, created_by)
         
         self.molecular_weight = molecular_weight
         self.pi = pi

@@ -7,7 +7,6 @@ from model_new_schema.bioconcept import Bioconcept
 from model_new_schema.bioentity import Bioentity
 from model_new_schema.evidence import Evidence
 from model_new_schema.misc import Allele
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, Float
@@ -27,28 +26,21 @@ class Phenotype(Bioconcept):
     __mapper_args__ = {'polymorphic_identity': "PHENOTYPE",
                        'inherit_condition': id==Bioconcept.id}
 
-    def __init__(self, biocon_id, display_name, format_name, 
-                 observable, qualifier, mutant_type,
-                 phenotype_type, date_created, created_by):
-        Bioconcept.__init__(self, biocon_id, 'PHENOTYPE', display_name, format_name, 
-                            None, date_created, created_by)
-        self.phenotype_type = phenotype_type
+    def __init__(self, biocon_id, display_name, format_name, link,
+                 observable, qualifier, mutant_type, phenotype_type, 
+                 date_created, created_by):
+        Bioconcept.__init__(self, biocon_id, 'PHENOTYPE', display_name, format_name, link, None, 
+                            date_created, created_by)
         self.observable = observable
         self.qualifier = qualifier
         self.mutant_type = mutant_type
-        
-    @hybrid_property
-    def search_entry_type(self):
-        return 'Phenotype'
-    @hybrid_property
-    def weight(self):
-        return self.direct_gene_count
+        self.phenotype_type = phenotype_type
         
 class Phenoevidence(Evidence):
     __tablename__ = "phenoevidence"
     
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
-    mutant_allele_id = Column('mutant_allele', Integer, ForeignKey(Allele.id))
+    allele_id = Column('allele_id', Integer, ForeignKey(Allele.id))
     
     reporter = Column('reporter', String)
     reporter_desc = Column('reporter_desc', String)
@@ -77,20 +69,16 @@ class Phenoevidence(Evidence):
     __mapper_args__ = {'polymorphic_identity': "PHENOTYPE_EVIDENCE",
                        'inherit_condition': id==Evidence.id}
     
-    def __init__(self, evidence_id, experiment_type, experiment_name_with_link, 
-                 reference_id, reference_name_with_link, reference_citation, 
-                 strain_id, strain_name_with_link, source,
-                 bioent_id, biocon_id,
-                 mutant_allele_id, allele_info,
-                 reporter, reporter_desc, strain_details, experiment_details, conditions, details,
+    def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source,
+                 bioent_id, biocon_id, allele_id, 
+                 allele_info, reporter, reporter_desc, strain_details, experiment_details, conditions, details,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, experiment_type, experiment_name_with_link,
-                          reference_id, reference_name_with_link, reference_citation,
-                          strain_id, strain_name_with_link, source, 'PHENOTYPE_EVIDENCE', date_created, created_by)
+        Evidence.__init__(self, evidence_id, 'PHENOTYPE_EVIDENCE', experiment_id, reference_id, strain_id, source, 
+                          date_created, created_by)
         self.bioent_id = bioent_id
         self.biocon_id = biocon_id
+        self.allele_id = allele_id
         
-        self.mutant_allele_id = mutant_allele_id
         self.allele_info = allele_info
         self.reporter = reporter
         self.reporter_desc = reporter_desc

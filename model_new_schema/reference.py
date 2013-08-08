@@ -7,8 +7,7 @@ These classes are populated using SQLAlchemy to connect to the BUD schema on Fas
 Reference module of the database schema.
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.link_maker import add_link, reference_link, author_link
-from model_new_schema.misc import Url, Altid
+from model_new_schema.misc import Url
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
@@ -73,12 +72,13 @@ class Reference(Base, EqualityByIDMixin):
     id = Column('reference_id', Integer, primary_key = True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     source = Column('source', String)
+    
     status = Column('status', String)
     pubmed_id = Column('pubmed_id', Integer)
     pdf_status = Column('pdf_status', String)
-    citation_db = Column('citation', String)
-    citation = Column('citation_html', String)
+    citation = Column('citation', String)
     year = Column('year', Integer)
     date_published = Column('date_published', String)
     date_revised = Column('date_revised', Integer)
@@ -91,10 +91,10 @@ class Reference(Base, EqualityByIDMixin):
     doi = Column('doi', String)
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
+    
     fulltext_link = Column('fulltext_url', String)
     abstract = Column('abstract', CLOB)
     type = "REFERENCE"
-    name_with_link = Column('name_with_link', String)
     
     #Relationships  
     book = relationship(Book, uselist=False)
@@ -104,16 +104,17 @@ class Reference(Base, EqualityByIDMixin):
     reftype_names = association_proxy('reftypes', 'name')
     related_references = association_proxy('refrels', 'child_ref')
     
-    def __init__(self, reference_id, display_name, format_name, source, status, pubmed_id, pdf_status, 
-                 citation, year, date_published, date_revised, issue, page, volume, title, 
-                 journal_id, book_id, doi, abstract, date_created, created_by):
+    def __init__(self, reference_id, display_name, format_name, link, source, 
+                 status, pubmed_id, pdf_status, citation, year, date_published, date_revised, issue, page, volume, 
+                 title, journal_id, book_id, doi, abstract, date_created, created_by):
         self.id = reference_id
         self.display_name = display_name
         self.format_name = format_name
+        self.link = link
         self.source=source
         self.status = status
         self.pdf_status = pdf_status
-        self.citation_db = citation
+        self.citation = citation
         self.year = year
         self.date_published = date_published
         self.date_revised = date_revised
@@ -126,8 +127,6 @@ class Reference(Base, EqualityByIDMixin):
         self.pubmed_id = pubmed_id
         self.doi = doi
         self.abstract = abstract
-        self.citation = add_link(self.display_name, self.link) + self.citation_db[self.citation_db.find(')')+1:] + self.small_pmid
-        self.name_with_link = add_link(self.display_name, self.link) + self.small_pmid
         self.date_created = date_created
         self.created_by = created_by
         
@@ -138,39 +137,6 @@ class Reference(Base, EqualityByIDMixin):
     def authors(self):
         sorted_author_refs = sorted(list(self.author_references), key=lambda x: x.order)
         return [author_ref.author for author_ref in sorted_author_refs]   
-
-    @hybrid_property
-    def description(self):
-        return self.title
-      
-    @hybrid_property
-    def link(self):
-        return reference_link(self)
-    @hybrid_property
-    def small_pmid(self):
-        if self.pubmed_id is None:
-            return ''
-        else:
-            return ' <small>PMID:' + str(self.pubmed_id) + '</small>'
-    @hybrid_property
-    def pubmed_link(self):
-        return 'http://www.ncbi.nlm.nih.gov/pubmed/' + str(self.pubmed_id)
-    
-    @hybrid_property
-    def search_entry_title(self):
-        return self.name_with_link
-    @hybrid_property
-    def search_description(self):
-        #return self.abst.text
-        return self.title
-    @hybrid_property
-    def search_additional(self):
-        if self.pubmed_id is not None:
-            return 'Pubmed ID: ' + str(self.pubmed_id)
-        return None
-    @hybrid_property
-    def search_entry_type(self):
-        return 'Reference'
     
     @hybrid_property
     def reftype_str(self):
@@ -181,15 +147,6 @@ class Reference(Base, EqualityByIDMixin):
     @hybrid_property
     def related_ref_str(self):
         return ', '.join([ref.name_with_link for ref in self.related_references])
-    @hybrid_property
-    def url_str(self):
-        return '<br>' + '<br>'.join([url.name_with_link for url in self.urls])
-    @hybrid_property
-    def pubmed_id_with_link(self):
-        if self.pubmed_id is not None:
-            return add_link(str(self.pubmed_id), self.pubmed_link, new_window=True)
-        else:
-            return ''
     
 class Author(Base, EqualityByIDMixin):
     __tablename__ = 'author'
@@ -197,13 +154,15 @@ class Author(Base, EqualityByIDMixin):
     id = Column('author_id', Integer, primary_key = True)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
         
-    def __init__(self, author_id, display_name, format_name, date_created, created_by):
+    def __init__(self, author_id, display_name, format_name, link, date_created, created_by):
         self.id = author_id
         self.display_name = display_name
         self.format_name = format_name
+        self.link = link
         self.created_by = created_by
         self.date_created = date_created
         
@@ -211,17 +170,10 @@ class Author(Base, EqualityByIDMixin):
         return self.format_name
     
     @hybrid_property
-    def link(self):
-        return author_link(self)
-    
-    @hybrid_property
     def references(self):
         sorted_references = sorted([author_ref.reference for author_ref in self.author_references], key=lambda x: x.date_published, reverse=True)
         return sorted_references
     
-    @hybrid_property
-    def name_with_link(self):
-        return add_link(self.display_name, self.link) 
     
 class AuthorReference(Base, EqualityByIDMixin):
     __tablename__ = 'author_reference'
@@ -300,30 +252,28 @@ class ReferenceUrl(Url):
     #Relationships
     reference = relationship(Reference, uselist=False, backref=backref('urls', passive_deletes=True))
     
-    def __init__(self, url, display_name, source, reference_id, date_created, created_by):
-        Url.__init__(self, url, display_name, 'REFERENCE_URL', source, date_created, created_by)
+    def __init__(self, display_name, source, url, category, reference_id, date_created, created_by):
+        Url.__init__(self, 'REFERENCE_URL', display_name, source, url, category, date_created, created_by)
         self.reference_id = reference_id
         
     def unique_key(self):
         return (self.url, self.reference_id)
-        
-class ReferenceAltid(Altid):
-    __tablename__ = 'referencealtid'
-    
-    id = Column('altid_id', Integer, ForeignKey(Altid.id), primary_key=True)
-    reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
-    
-    __mapper_args__ = {'polymorphic_identity': 'REFERENCE_ALTID',
-                       'inherit_condition': id == Altid.id}
-        
-    #Relationships
-    reference = relationship(Reference, uselist=False, backref=backref('altids', passive_deletes=True))
-        
-    def __init__(self, identifier, source, altid_name, reference_id, date_created, created_by):
-        Altid.__init__(self, identifier, 'REFERENCE_ALTID', source, altid_name, date_created, created_by)
-        self.reference_id = reference_id
 
+class BioentReference(Base):
+    __tablename__ = 'bioent_reference'
     
+    id = Column('bioent_reference_id', Integer, primary_key=True)
+    bioent_id = Column('bioent_id', Integer, ForeignKey("sprout.bioent.bioent_id"))
+    reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
+    bioent_ref_type = Column('bioent_ref_type', String)
+    
+    def __init__(self, bioent_ref_type, bioent_id, reference_id):
+        self.bioent_ref_type = bioent_ref_type
+        self.bioent_id = bioent_id
+        self.reference_id = reference_id
+        
+    def unique_key(self):
+        return (self.bioent_id, self.reference_id, self.bioent_ref_type)
  
 
 

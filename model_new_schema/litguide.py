@@ -8,13 +8,14 @@ from model_new_schema.evidence import Evidence
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
-class Bioentevidence(Evidence):
+
+
+class LiteratureEvidence(Evidence):
     __tablename__ = "bioentevidence" 
     
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
     topic = Column('topic', String)
     bioent_id = Column('bioent_id', Integer, ForeignKey(Bioentity.id))
-    bioent_name_with_link = Column('bioent_name_with_link', String)
     type = 'BIOENT_EVIDENCE'  
     
     #Relationships 
@@ -23,12 +24,10 @@ class Bioentevidence(Evidence):
     __mapper_args__ = {'polymorphic_identity': "BIOENT_EVIDENCE",
                        'inherit_condition': id==Evidence.id}
 
-    def __init__(self, evidence_id, reference_id, reference_name_with_link, reference_citation, topic,
-                bioent_id, bioent_name_with_link, date_created, created_by):
-        Evidence.__init__(self, evidence_id, None, None,
-                          reference_id, reference_name_with_link, reference_citation,
-                          None, None,
-                          'SGD', 'BIOENT_EVIDENCE', date_created, created_by)
-        self.topic = topic
+    def __init__(self, evidence_id, reference_id, bioent_id, topic,
+                            date_created, created_by):
+        Evidence.__init__(self, evidence_id, 'BIOENT_EVIDENCE', None, reference_id, None, 'SGD',
+                          date_created, created_by)
         self.bioent_id = bioent_id
-        self.bioent_name_with_link = bioent_name_with_link
+        self.topic = topic
+        

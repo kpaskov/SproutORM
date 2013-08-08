@@ -4,7 +4,6 @@ Created on Nov 28, 2012
 @author: kpaskov
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.link_maker import add_link, biocon_link
 from model_new_schema.misc import Alias
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -20,6 +19,7 @@ class Bioconcept(Base, EqualityByIDMixin):
     biocon_type = Column('biocon_type', String)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
+    link = Column('obj_link', String)
     description = Column('description', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
@@ -31,11 +31,12 @@ class Bioconcept(Base, EqualityByIDMixin):
     #Relationships
     aliases = association_proxy('bioconaliases', 'name')
     
-    def __init__(self, biocon_id, biocon_type, display_name, format_name, description, date_created, created_by):
+    def __init__(self, biocon_id, biocon_type, display_name, format_name, link, description, date_created, created_by):
         self.id = biocon_id
         self.biocon_type = biocon_type
         self.display_name = display_name
         self.format_name = format_name
+        self.link = link
         self.description = description
         self.date_created = date_created
         self.created_by = created_by
@@ -44,23 +45,8 @@ class Bioconcept(Base, EqualityByIDMixin):
         return (self.format_name, self.biocon_type)
             
     @hybrid_property
-    def link(self):
-        return biocon_link(self)
-    @hybrid_property
-    def name_with_link(self):
-        return add_link(self.display_name, self.link)
-    @hybrid_property
     def alias_str(self):
         return ', '.join(self.aliases)
-    @hybrid_property
-    def search_entry_title(self):
-        return self.name_with_link
-    @hybrid_property
-    def search_description(self):
-        return self.description
-    @hybrid_property
-    def search_additional(self):
-        return None
       
 class BioconRelation(Base, EqualityByIDMixin):
     __tablename__ = 'bioconrel'
