@@ -10,8 +10,8 @@ from sqlalchemy.types import Integer, String, Date
 class Allele(Base):
     __tablename__ = 'allele'
     id = Column('allele_id', Integer, primary_key=True)
-    dislay_name = Column('name', String)
-    format_name = Column('name', String)
+    display_name = Column('display_name', String)
+    format_name = Column('format_name', String)
     link = Column('obj_link', String)
     description = Column('description', String)
     

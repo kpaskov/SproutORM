@@ -11,7 +11,6 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, Date
 
-
 class Bioconcept(Base, EqualityByIDMixin):
     __tablename__ = "biocon"
         
@@ -69,29 +68,6 @@ class BioconRelation(Base, EqualityByIDMixin):
         
     def unique_key(self):
         return (self.parent_id, self.child_id, self.bioconrel_type, self.relationship_type)
-        
-  
-class BioconAncestor(Base, EqualityByIDMixin):
-    __tablename__ = 'biocon_ancestor'
-
-    id = Column('biocon_ancestor_id', Integer, primary_key=True)
-    ancestor_id = Column('ancestor_biocon_id', Integer, ForeignKey(Bioconcept.id))
-    child_id = Column('child_biocon_id', Integer, ForeignKey(Bioconcept.id))
-    generation = Column('generation', Integer)
-    bioconanc_type = Column('bioconanc_type', String)
-   
-    ancestor_biocon = relationship('Bioconcept', uselist=False, backref=backref('child_family', cascade='all,delete'), primaryjoin="BioconAncestor.ancestor_id==Bioconcept.id")
-    child_biocon = relationship('Bioconcept', uselist=False, backref=backref('parent_family', cascade='all,delete'), primaryjoin="BioconAncestor.child_id==Bioconcept.id")
-    type = "BIOCON_ANCESTOR"
-
-    def __init__(self, ancestor_id, child_id, bioconanc_type, generation):
-        self.ancestor_id = ancestor_id
-        self.child_id = child_id
-        self.bioconanc_type = bioconanc_type
-        self.generation = generation
-
-    def unique_key(self):
-        return (self.ancestor_id, self.child_id, self.bioconanc_type)
     
 class BioconAlias(Alias):
     __tablename__ = 'bioconalias'

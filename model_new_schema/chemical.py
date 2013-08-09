@@ -75,12 +75,12 @@ class ChemicalAlias(Alias):
     #Relationships
     chemical = relationship(Chemical, uselist=False, backref=backref('chemaliases', passive_deletes=True))
         
-    def __init__(self, name, source, chemical_id, date_created, created_by):
-        Alias.__init__(self, name, 'CHEMICAL_ALIAS', source, None, date_created, created_by)
+    def __init__(self, displkay_name, source, chemical_id, date_created, created_by):
+        Alias.__init__(self, 'CHEMICAL_ALIAS', displkay_name, source, None, date_created, created_by)
         self.chemical_id = chemical_id
         
     def unique_key(self):
-        return (self.name, self.chemical_id)
+        return (self.display_name, self.chemical_id)
         
         
         

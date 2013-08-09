@@ -3,62 +3,12 @@ Created on May 16, 2013
 
 @author: kpaskov
 '''
-from model_new_schema import Base, EqualityByIDMixin
 from model_new_schema.bioentity import Bioentity
 from model_new_schema.evidence import Evidence
 from model_new_schema.phenotype import Phenotype
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
-
-class Interaction(Base, EqualityByIDMixin):
-    __tablename__ = "interaction"
-    
-    id = Column('interaction_id', Integer, primary_key = True)
-    interaction_type = Column('interaction_type', String)
-    format_name = Column('format_name', String)
-    display_name = Column('display_name', String)
-    link = Column('obj_link', String)
-    bioent1_id = Column('bioent1_id', Integer)
-    bioent2_id = Column('bioent2_id', Integer)
-    evidence_count = Column('evidence_count', Integer)
-    type = 'INTERACTION'
-    
-    def __init__(self, interaction_id, interaction_type, display_name, format_name, link, bioent1_id, bioent2_id):
-        self.id = interaction_id
-        self.interaction_type = interaction_type
-        self.display_name = display_name
-        self.format_name = format_name
-        self.link = link
-        self.bioent1_id = bioent1_id
-        self.bioent2_id = bioent2_id
-        
-    def unique_key(self):
-        return (self.format_name, self.interaction_type)
-    
-    
-class InteractionFamily(Base, EqualityByIDMixin):
-    __tablename__ = "interaction_family"
-    
-    id = Column('interaction_family_id', Integer, primary_key = True)
-    bioent_id = Column('bioent_id', Integer)
-    bioent1_id = Column('bioent1_id', Integer)
-    bioent2_id = Column('bioent2_id', Integer)
-    evidence_count = Column('evidence_count', Integer)
-    genetic_ev_count = Column('gen_ev_count', Integer)
-    physical_ev_count = Column('phys_ev_count', Integer)
-    
-    def __init__(self, bioent_id, bioent1_id, bioent2_id, 
-                 genetic_ev_count, physical_ev_count, evidence_count):
-        self.bioent_id = bioent_id
-        self.bioent1_id = bioent1_id
-        self.bioent2_id = bioent2_id
-        self.genetic_ev_count = genetic_ev_count
-        self.physical_ev_count = physical_ev_count
-        self.evidence_count = evidence_count
-        
-    def unique_key(self):
-        return (self.bioent_id, self.bioent1_id, self.bioent2_id)
 
 class GeneticInterevidence(Evidence):
     __tablename__ = "geneticinterevidence"

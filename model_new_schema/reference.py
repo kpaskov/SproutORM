@@ -7,7 +7,7 @@ These classes are populated using SQLAlchemy to connect to the BUD schema on Fas
 Reference module of the database schema.
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from model_new_schema.misc import Url
+from model_new_schema.misc import Url, Alias
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
@@ -131,7 +131,7 @@ class Reference(Base, EqualityByIDMixin):
         self.created_by = created_by
         
     def unique_key(self):
-        return self.citation_db
+        return self.citation
             
     @hybrid_property
     def authors(self):
@@ -258,22 +258,25 @@ class ReferenceUrl(Url):
         
     def unique_key(self):
         return (self.url, self.reference_id)
-
-class BioentReference(Base):
-    __tablename__ = 'bioent_reference'
     
-    id = Column('bioent_reference_id', Integer, primary_key=True)
-    bioent_id = Column('bioent_id', Integer, ForeignKey("sprout.bioent.bioent_id"))
+class ReferenceAlias(Alias):
+    __tablename__ = 'referencealias'
+    
+    id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)
     reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
-    bioent_ref_type = Column('bioent_ref_type', String)
     
-    def __init__(self, bioent_ref_type, bioent_id, reference_id):
-        self.bioent_ref_type = bioent_ref_type
-        self.bioent_id = bioent_id
+    __mapper_args__ = {'polymorphic_identity': 'REFERENCE_ALIAS',
+                       'inherit_condition': id == Alias.id}
+        
+    #Relationships
+    reference = relationship(Reference, uselist=False, backref=backref('reference_aliases', passive_deletes=True))
+        
+    def __init__(self, display_name, source, category, reference_id, date_created, created_by):
+        Alias.__init__(self, 'REFERENCE_ALIAS', display_name, source, category, date_created, created_by)
         self.reference_id = reference_id
         
     def unique_key(self):
-        return (self.bioent_id, self.reference_id, self.bioent_ref_type)
+        return (self.display_name, self.reference_id)
  
 
 
