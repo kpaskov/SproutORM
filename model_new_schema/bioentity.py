@@ -33,7 +33,7 @@ class Bioentity(Base, EqualityByIDMixin):
                        'polymorphic_identity':"BIOENTITY"}
     
     #Relationships
-    aliases = association_proxy('bioentaliases', 'name')
+    aliases = association_proxy('bioentaliases', 'display_name')
     type = "BIOENTITY"
             
     def __init__(self, bioent_id, bioent_type, display_name, format_name, link, source, status,
