@@ -72,6 +72,9 @@ class ExperimentAlias(Alias):
     def __init__(self, display_name, source, category, experiment_id, date_created, created_by):
         Alias.__init__(self, 'EXPERIMENT_ALIAS', display_name, source, category, date_created, created_by)
         self.experiment_id = experiment_id
+        
+    def unique_key(self):
+        return (self.display_name, self.experiment_id)
 
 class Strain(Base, EqualityByIDMixin):
     __tablename__ = 'strain'

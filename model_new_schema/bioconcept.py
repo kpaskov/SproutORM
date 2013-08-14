@@ -82,13 +82,13 @@ class BioconAlias(Alias):
     #Relationships
     biocon = relationship(Bioconcept, uselist=False, backref=backref('bioconaliases', passive_deletes=True))
         
-    def __init__(self, name, biocon_id, biocon_type, date_created, created_by):
-        Alias.__init__(self, name, 'BIOCON_ALIAS', None, None, date_created, created_by)
+    def __init__(self, display_name, biocon_id, biocon_type, date_created, created_by):
+        Alias.__init__(self, 'BIOCON_ALIAS', display_name, None, None, date_created, created_by)
         self.biocon_id = biocon_id
         self.biocon_type = biocon_type
         
     def unique_key(self):
-        return (self.name, self.biocon_id)
+        return (self.display_name, self.biocon_id)
     
     
     
