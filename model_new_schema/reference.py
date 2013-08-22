@@ -94,6 +94,8 @@ class Reference(Base, EqualityByIDMixin):
     
     fulltext_link = Column('fulltext_url', String)
     abstract = Column('abstract', CLOB)
+    reftype_list = Column('reftype_list', String)
+    author_list = Column('author_list', String)
     type = "REFERENCE"
     
     #Relationships  
@@ -138,12 +140,6 @@ class Reference(Base, EqualityByIDMixin):
         sorted_author_refs = sorted(list(self.author_references), key=lambda x: x.order)
         return [author_ref.author for author_ref in sorted_author_refs]   
     
-    @hybrid_property
-    def reftype_str(self):
-        return ', '.join([reftype.name for reftype in self.reftypes])
-    @hybrid_property
-    def author_str(self):
-        return ', '.join([author.name_with_link for author in self.authors])
     @hybrid_property
     def related_ref_str(self):
         return ', '.join([ref.name_with_link for ref in self.related_references])
