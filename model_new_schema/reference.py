@@ -93,14 +93,12 @@ class Reference(Base, EqualityByIDMixin):
     date_created = Column('date_created', Date)
     
     fulltext_link = Column('fulltext_url', String)
-    abstract = Column('abstract', CLOB)
-    reftype_list = Column('reftype_list', String)
-    author_list = Column('author_list', String)
     type = "REFERENCE"
     
     #Relationships  
     book = relationship(Book, uselist=False)
     journal = relationship(Journal, uselist=False)
+    abstract = association_proxy('abstract_obj', 'text')
     
     author_names = association_proxy('author_references', 'author_name')
     reftype_names = association_proxy('reftypes', 'name')
@@ -108,7 +106,7 @@ class Reference(Base, EqualityByIDMixin):
     
     def __init__(self, reference_id, display_name, format_name, link, source, 
                  status, pubmed_id, pdf_status, citation, year, date_published, date_revised, issue, page, volume, 
-                 title, journal_id, book_id, doi, abstract, date_created, created_by):
+                 title, journal_id, book_id, doi, date_created, created_by):
         self.id = reference_id
         self.display_name = display_name
         self.format_name = format_name
@@ -128,7 +126,6 @@ class Reference(Base, EqualityByIDMixin):
         self.book_id = book_id
         self.pubmed_id = pubmed_id
         self.doi = doi
-        self.abstract = abstract
         self.date_created = date_created
         self.created_by = created_by
         
@@ -143,6 +140,35 @@ class Reference(Base, EqualityByIDMixin):
     @hybrid_property
     def related_ref_str(self):
         return ', '.join([ref.name_with_link for ref in self.related_references])
+    
+class ReferenceBib(Base, EqualityByIDMixin):
+    __tablename__ = 'reference_bib'
+
+    id = Column('reference_id', Integer, ForeignKey(Reference.id), primary_key = True)
+    bib_entry = Column('bib_entry', CLOB)
+        
+    def __init__(self, reference_id, bib_entry):
+        self.id = reference_id
+        self.bib_entry = bib_entry
+        
+    def unique_key(self):
+        return self.id
+    
+class Abstract(Base, EqualityByIDMixin):
+    __tablename__ = 'abstract'
+
+    id = Column('reference_id', Integer, ForeignKey(Reference.id), primary_key = True)
+    text = Column('text', CLOB)
+    
+    #Relationships
+    reference = relationship(Reference, uselist=False, backref=backref("abstract_obj", uselist=False))
+        
+    def __init__(self, reference_id, text):
+        self.id = reference_id
+        self.text = text
+        
+    def unique_key(self):
+        return self.id
     
 class Author(Base, EqualityByIDMixin):
     __tablename__ = 'author'
