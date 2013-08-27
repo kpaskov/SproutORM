@@ -161,7 +161,7 @@ class Abstract(Base, EqualityByIDMixin):
     text = Column('text', CLOB)
     
     #Relationships
-    reference = relationship(Reference, uselist=False, backref=backref("abstract_obj", uselist=False))
+    reference = relationship(Reference, uselist=False, backref=backref("abstract_obj", uselist=False, passive_deletes=True))
         
     def __init__(self, reference_id, text):
         self.id = reference_id
