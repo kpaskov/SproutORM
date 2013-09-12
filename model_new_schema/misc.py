@@ -4,8 +4,9 @@ Created on Mar 4, 2013
 @author: kpaskov
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from sqlalchemy.schema import Column
-from sqlalchemy.types import Integer, String, Date
+from model_new_schema.bioentity import Bioentity
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.types import Integer, String, Date, CLOB
 
 class Allele(Base):
     __tablename__ = 'allele'
@@ -84,6 +85,23 @@ class Note(Base, EqualityByIDMixin):
     def __init__(self, note_type, note, date_created, created_by):
         self.note_type = note_type
         self.note = note
+        self.date_created = date_created
+        self.created_by = created_by
+        
+class Paragraph(Base, EqualityByIDMixin):
+    __tablename__ = 'paragraph'
+    
+    id = Column('paragraph_id', Integer, primary_key=True)
+    bioent_id = Column('bioent_id', Integer, ForeignKey(Bioentity.id))
+    paragraph_type = Column('paragraph_type', String)
+    text = Column('text', CLOB)
+    date_created = Column('date_created', Date)
+    created_by = Column('created_by', String)
+        
+    def __init__(self, bioent_id, paragraph_type, text, date_created, created_by):
+        self.bioent_id = bioent_id
+        self.paragraph_type = paragraph_type
+        self.text = text
         self.date_created = date_created
         self.created_by = created_by
        

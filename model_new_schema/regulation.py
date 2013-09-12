@@ -6,7 +6,7 @@ Created on May 16, 2013
 from model_new_schema.bioentity import Bioentity
 from model_new_schema.evidence import Evidence
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import Integer
+from sqlalchemy.types import Integer, String
 
 class Regulationevidence(Evidence):
     __tablename__ = "regulationevidence"
@@ -14,6 +14,7 @@ class Regulationevidence(Evidence):
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
     bioent1_id = Column('bioent1_id', Integer, ForeignKey(Bioentity.id))
     bioent2_id = Column('bioent2_id', Integer, ForeignKey(Bioentity.id))
+    conditions = Column('conditions', String)
        
     __mapper_args__ = {'polymorphic_identity': "REGULATION_EVIDENCE",
                        'inherit_condition': id==Evidence.id}
