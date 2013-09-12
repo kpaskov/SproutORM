@@ -49,8 +49,6 @@ class PhysicalInterevidence(Evidence):
     bait_hit = Column('bait_hit', String)
     bioent1_id = Column('bioent1_id', Integer, ForeignKey(Bioentity.id))
     bioent2_id = Column('bioent2_id', Integer, ForeignKey(Bioentity.id))
-    bioent1_name_with_link = Column('bioent1_name_with_link', String)
-    bioent2_name_with_link = Column('bioent2_name_with_link', String)
     note = Column('note', String)
             
     __mapper_args__ = {'polymorphic_identity': "PHYSICAL_INTERACTION_EVIDENCE",

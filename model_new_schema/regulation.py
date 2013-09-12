@@ -20,11 +20,12 @@ class Regulationevidence(Evidence):
                        'inherit_condition': id==Evidence.id}
 
     def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source, 
-                 bioent1_id, bioent2_id,
+                 bioent1_id, bioent2_id, conditions,
                  date_created, created_by):
         Evidence.__init__(self, evidence_id, 'REGULATION_EVIDENCE', 
                           experiment_id, reference_id, strain_id, source, 
                           date_created, created_by)
         self.bioent1_id = bioent1_id
         self.bioent2_id = bioent2_id
+        self.conditions = conditions
         
