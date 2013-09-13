@@ -10,24 +10,23 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 
 
-class LiteratureEvidence(Evidence):
-    __tablename__ = "bioentevidence" 
+class Literatureevidence(Evidence):
+    __tablename__ = "literatureevidence" 
     
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
     topic = Column('topic', String)
-    bioent_id = Column('bioent_id', Integer, ForeignKey(Bioentity.id))
-    type = 'BIOENT_EVIDENCE'  
+    bioent_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
     
     #Relationships 
     bioentity = relationship(Bioentity, uselist=False)
     
-    __mapper_args__ = {'polymorphic_identity': "BIOENT_EVIDENCE",
+    __mapper_args__ = {'polymorphic_identity': "LITERATURE",
                        'inherit_condition': id==Evidence.id}
 
-    def __init__(self, evidence_id, reference_id, bioent_id, topic,
+    def __init__(self, evidence_id, reference_id, bioentity_id, topic,
                             date_created, created_by):
-        Evidence.__init__(self, evidence_id, 'BIOENT_EVIDENCE', None, reference_id, None, 'SGD',
+        Evidence.__init__(self, evidence_id, 'LITERATURE', None, reference_id, None, 'SGD',
                           date_created, created_by)
-        self.bioent_id = bioent_id
+        self.bioentity_id = bioentity_id
         self.topic = topic
         

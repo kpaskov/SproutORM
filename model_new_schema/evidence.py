@@ -6,7 +6,6 @@ Created on Dec 11, 2012
 from model_new_schema import Base, EqualityByIDMixin
 from model_new_schema.chemical import Chemical
 from model_new_schema.evelement import Experiment, Strain
-from model_new_schema.misc import Note
 from model_new_schema.reference import Reference
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, backref
@@ -17,7 +16,7 @@ class Evidence(Base, EqualityByIDMixin):
     __tablename__ = "evidence"
     
     id = Column('evidence_id', Integer, primary_key=True)
-    evidence_type = Column('evidence_type', String)
+    class_type = Column('class', String)
     experiment_id = Column('experiment_id', Integer, ForeignKey(Experiment.id))
     reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
     strain_id = Column('strain_id', Integer, ForeignKey(Strain.id))
@@ -28,9 +27,9 @@ class Evidence(Base, EqualityByIDMixin):
     reference = relationship(Reference, backref=backref('evidences', passive_deletes=True), uselist=False)
     experiment = relationship(Experiment, uselist=False)
     strain = relationship(Strain, uselist=False)
-    chemicals = association_proxy('ev_chemicals', 'chemical')
+    chemicals = association_proxy('evidence_chemicals', 'chemical')
     
-    __mapper_args__ = {'polymorphic_on': evidence_type,
+    __mapper_args__ = {'polymorphic_on': class_type,
                        'polymorphic_identity':"EVIDENCE"}
     
     
@@ -58,7 +57,7 @@ class EvidenceChemical(Base, EqualityByIDMixin):
     
     #Relationships
     chemical = relationship(Chemical, uselist=False, lazy='joined')
-    evidence = relationship(Evidence, backref=backref('ev_chemicals', passive_deletes=True), uselist=False)
+    evidence = relationship(Evidence, backref=backref('evidence_chemicals', passive_deletes=True), uselist=False)
     chemical_name = association_proxy('chemical', 'display_name')
     
     def __init__(self, evidence_id, chemical_id, chemical_amt):
@@ -68,24 +67,6 @@ class EvidenceChemical(Base, EqualityByIDMixin):
     
     def unique_key(self):
         return (self.evidence_id, self.chemical_id)
-    
-class EvidenceNote(Note):
-    __tablename__ = 'evidencenote'
-    id = Column('note_id', Integer, ForeignKey(Note.id), primary_key=True)
-    evidence_id = Column('evidence_id', ForeignKey(Evidence.id))
-    
-    __mapper_args__ = {'polymorphic_identity': 'EVIDENCE_NOTE',
-                       'inherit_condition': id == Note.id}
-    
-    #Relationships
-    evidence = relationship(Evidence, uselist=False, backref=backref('notes', passive_deletes=True))
-    
-    def __init__(self, note, evidence_id, date_created, created_by):
-        Note.__init__(self, note, 'EVIDENCE_NOTE', date_created, created_by)
-        self.evidence_id = evidence_id
-        
-    def unique_key(self):
-        return (self.note, self.evidence_id)
 
     
         

@@ -35,42 +35,42 @@ class Experiment(Base, EqualityByIDMixin):
     
     
 class ExperimentRelation(Base, EqualityByIDMixin):
-    __tablename__ = 'experimentrel'
+    __tablename__ = 'experiment_relation'
 
-    id = Column('rel_id', Integer, primary_key = True)
-    parent_id = Column('parent_id', Integer, ForeignKey(Experiment.id))
-    child_id = Column('child_id', Integer, ForeignKey(Experiment.id))
+    id = Column('experiment_relation_id', Integer, primary_key = True)
+    parent_experiment_id = Column('parent_experiment_id', Integer, ForeignKey(Experiment.id))
+    child_experiment_id = Column('child_experiment_id', Integer, ForeignKey(Experiment.id))
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
     
     #Relationships
-    parent_experiment = relationship(Experiment, uselist=False, backref=backref('experimentrels', passive_deletes=True), primaryjoin="ExperimentRelation.parent_id==Experiment.id")
-    child_experiment = relationship(Experiment, uselist=False, primaryjoin="ExperimentRelation.child_id==Experiment.id")
+    parent_experiment = relationship(Experiment, uselist=False, backref=backref('child_experiment_relations', passive_deletes=True), primaryjoin="ExperimentRelation.parent_experiment_id==Experiment.id")
+    child_experiment = relationship(Experiment, uselist=False, primaryjoin="ExperimentRelation.child_experiment_id==Experiment.id")
     
-    def __init__(self, experimentrel_id, parent_id, child_id, date_created, created_by):
+    def __init__(self, experimentrel_id, parent_experiment_id, child_experiment_id, date_created, created_by):
         self.id = experimentrel_id
-        self.parent_id = parent_id;
-        self.child_id = child_id
+        self.parent_experiment_id = parent_experiment_id;
+        self.child_experiment_id = child_experiment_id
         self.date_created = date_created
         self.created_by = created_by
         
     def unique_key(self):
-        return (self.parent_id, self.child_id)
+        return (self.parent_experiment_id, self.child_experiment_id)
         
-class ExperimentAlias(Alias):
+class Experimentalias(Alias):
     __tablename__ = 'experimentalias'
     
     id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)
     experiment_id = Column('experiment_id', Integer, ForeignKey(Experiment.id))
     
-    __mapper_args__ = {'polymorphic_identity': 'EXPERIMENT_ALIAS',
+    __mapper_args__ = {'polymorphic_identity': 'EXPERIMENT',
                        'inherit_condition': id == Alias.id}
         
     #Relationships
-    reference = relationship(Experiment, uselist=False, backref=backref('altids', passive_deletes=True))
+    reference = relationship(Experiment, uselist=False, backref=backref('aliases', passive_deletes=True))
         
     def __init__(self, display_name, source, category, experiment_id, date_created, created_by):
-        Alias.__init__(self, 'EXPERIMENT_ALIAS', display_name, source, category, date_created, created_by)
+        Alias.__init__(self, 'EXPERIMENT', display_name, source, category, date_created, created_by)
         self.experiment_id = experiment_id
         
     def unique_key(self):

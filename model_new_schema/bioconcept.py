@@ -12,27 +12,26 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, Date
 
 class Bioconcept(Base, EqualityByIDMixin):
-    __tablename__ = "biocon"
+    __tablename__ = "bioconcept"
         
-    id = Column('biocon_id', Integer, primary_key = True)
-    biocon_type = Column('biocon_type', String)
+    id = Column('bioconcept_id', Integer, primary_key = True)
+    class_type = Column('class', String)
     display_name = Column('display_name', String)
     format_name = Column('format_name', String)
     link = Column('obj_link', String)
     description = Column('description', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
-    type = "BIOCONCEPT"
     
-    __mapper_args__ = {'polymorphic_on': biocon_type,
+    __mapper_args__ = {'polymorphic_on': class_type,
                        'polymorphic_identity':"BIOCONCEPT"}
     
     #Relationships
-    aliases = association_proxy('bioconaliases', 'name')
+    aliases = association_proxy('bioconceptaliases', 'name')
     
-    def __init__(self, biocon_id, biocon_type, display_name, format_name, link, description, date_created, created_by):
-        self.id = biocon_id
-        self.biocon_type = biocon_type
+    def __init__(self, bioconcept_id, class_type, display_name, format_name, link, description, date_created, created_by):
+        self.id = bioconcept_id
+        self.class_type = class_type
         self.display_name = display_name
         self.format_name = format_name
         self.link = link
@@ -41,54 +40,54 @@ class Bioconcept(Base, EqualityByIDMixin):
         self.created_by = created_by
         
     def unique_key(self):
-        return (self.format_name, self.biocon_type)
+        return (self.format_name, self.class_type)
             
     @hybrid_property
     def alias_str(self):
         return ', '.join(self.aliases)
       
-class BioconRelation(Base, EqualityByIDMixin):
-    __tablename__ = 'bioconrel'
+class BioconceptRelation(Base, EqualityByIDMixin):
+    __tablename__ = 'bioconcept_rel'
 
-    id = Column('biocon_biocon_id', Integer, primary_key=True)
-    parent_id = Column('parent_biocon_id', Integer, ForeignKey(Bioconcept.id))
-    child_id = Column('child_biocon_id', Integer, ForeignKey(Bioconcept.id))
+    id = Column('bioconcept_relation_id', Integer, primary_key=True)
+    parent_bioconcept_id = Column('parent_bioconcept_id', Integer, ForeignKey(Bioconcept.id))
+    child_bioconcept_id = Column('child_bioconcept_id', Integer, ForeignKey(Bioconcept.id))
     relationship_type = Column('relationship_type', String)
-    bioconrel_type = Column('bioconrel_type', String)
+    class_type = Column('class', String)
    
-    parent_biocon = relationship('Bioconcept', uselist=False, backref=backref('child_biocons', cascade='all,delete'), primaryjoin="BioconRelation.parent_id==Bioconcept.id")
-    child_biocon = relationship('Bioconcept', uselist=False, backref=backref('parent_biocons', cascade='all,delete'), primaryjoin="BioconRelation.child_id==Bioconcept.id")
-    type = "BIOCON_BIOCON"
+    #Relationships
+    parent_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('child_bioconcepts', cascade='all,delete'), primaryjoin="BioconceptRelation.parent_bioconcept_id==Bioconcept.id")
+    child_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('parent_bioconcepts', cascade='all,delete'), primaryjoin="BioconceptRelation.child_bioconcept_id==Bioconcept.id")
 
-    def __init__(self, parent_id, child_id, bioconrel_type, relationship_type):
-        self.parent_id = parent_id
-        self.child_id = child_id
-        self.bioconrel_type = bioconrel_type
+    def __init__(self, parent_bioconcept_id, child_bioconcept_id, child_bioconcept_id, relationship_type):
+        self.parent_bioconcept_id = parent_bioconcept_id
+        self.child_bioconcept_id = child_bioconcept_id
+        self.child_bioconcept_id = child_bioconcept_id
         self.relationship_type = relationship_type
         
     def unique_key(self):
-        return (self.parent_id, self.child_id, self.bioconrel_type, self.relationship_type)
+        return (self.parent_bioconcept_id, self.child_bioconcept_id, self.child_bioconcept_id, self.relationship_type)
     
-class BioconAlias(Alias):
-    __tablename__ = 'bioconalias'
+class Bioconceptalias(Alias):
+    __tablename__ = 'bioconceptalias'
     
     id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)
-    biocon_id = Column('biocon_id', Integer, ForeignKey(Bioconcept.id))
-    biocon_type = Column('biocon_type', String)
+    bioconcept_id = Column('bioconcept_id', Integer, ForeignKey(Bioconcept.id))
+    class_type = Column('class', String)
     
-    __mapper_args__ = {'polymorphic_identity': 'BIOCON_ALIAS',
+    __mapper_args__ = {'polymorphic_identity': 'BIOCONCEPT',
                        'inherit_condition': id == Alias.id}
         
     #Relationships
-    biocon = relationship(Bioconcept, uselist=False, backref=backref('bioconaliases', passive_deletes=True))
+    bioconcept = relationship(Bioconcept, uselist=False, backref=backref('bioconceptaliases', passive_deletes=True))
         
-    def __init__(self, display_name, biocon_id, biocon_type, date_created, created_by):
-        Alias.__init__(self, 'BIOCON_ALIAS', display_name, None, None, date_created, created_by)
-        self.biocon_id = biocon_id
-        self.biocon_type = biocon_type
+    def __init__(self, display_name, bioconcept_id, class_type, date_created, created_by):
+        Alias.__init__(self, 'BIOCONCEPT', display_name, None, None, date_created, created_by)
+        self.bioconcept_id = bioconcept_id
+        self.class_type = class_type
         
     def unique_key(self):
-        return (self.display_name, self.biocon_id)
+        return (self.display_name, self.bioconcept_id)
     
     
     

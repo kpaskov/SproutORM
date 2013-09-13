@@ -13,31 +13,30 @@ from sqlalchemy.types import Integer, String, Float
 
 
 class Phenotype(Bioconcept):
-    __tablename__ = "phenotype"
+    __tablename__ = "phenotypebioconcept"
     
-    id = Column('biocon_id', Integer, ForeignKey(Bioconcept.id), primary_key = True)
+    id = Column('bioconcept_id', Integer, ForeignKey(Bioconcept.id), primary_key = True)
     observable = Column('observable', String)
     qualifier = Column('qualifier', String)
     mutant_type = Column('mutant_type', String)
     phenotype_type = Column('phenotype_type', String)
     direct_gene_count = Column('direct_gene_count', Integer)
-    type = "PHENOTYPE"
        
     __mapper_args__ = {'polymorphic_identity': "PHENOTYPE",
                        'inherit_condition': id==Bioconcept.id}
 
-    def __init__(self, biocon_id, display_name, format_name, link,
+    def __init__(self, bioconcept_id, display_name, format_name, link,
                  observable, qualifier, mutant_type, phenotype_type, 
                  date_created, created_by):
-        Bioconcept.__init__(self, biocon_id, 'PHENOTYPE', display_name, format_name, link, None, 
+        Bioconcept.__init__(self, bioconcept_id, 'PHENOTYPE', display_name, format_name, link, None, 
                             date_created, created_by)
         self.observable = observable
         self.qualifier = qualifier
         self.mutant_type = mutant_type
         self.phenotype_type = phenotype_type
         
-class Phenoevidence(Evidence):
-    __tablename__ = "phenoevidence"
+class Phenotypeevidence(Evidence):
+    __tablename__ = "phenotypeevidence"
     
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
     allele_id = Column('allele_id', Integer, ForeignKey(Allele.id))
@@ -56,27 +55,27 @@ class Phenoevidence(Evidence):
     relative_fitness_score = Column('relative_fitness_score', Float)
     chitin_level = Column('chitin_level', Float)
 
-    bioent_id = Column('bioent_id', Integer, ForeignKey(Bioentity.id))
-    biocon_id = Column('biocon_id', Integer, ForeignKey(Phenotype.id))
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
+    bioconcept_id = Column('bioconcept_id', Integer, ForeignKey(Phenotype.id))
     
     type = 'BIOCON_EVIDENCE'
     
     #Relationship
     bioentity = relationship(Bioentity, uselist=False)
     bioconcept = relationship(Phenotype, uselist=False)
-    allele = relationship(Allele, lazy='subquery', uselist=False, backref='phenoevidences')
+    allele = relationship(Allele, lazy='subquery', uselist=False, backref='phenotypeevidences')
 
-    __mapper_args__ = {'polymorphic_identity': "PHENOTYPE_EVIDENCE",
+    __mapper_args__ = {'polymorphic_identity': "PHENOTYPE",
                        'inherit_condition': id==Evidence.id}
     
     def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source,
-                 bioent_id, biocon_id, allele_id, 
+                 bioentity_id, bioconcept_id, allele_id, 
                  allele_info, reporter, reporter_desc, strain_details, experiment_details, conditions, details,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, 'PHENOTYPE_EVIDENCE', experiment_id, reference_id, strain_id, source, 
+        Evidence.__init__(self, evidence_id, 'PHENOTYPE', experiment_id, reference_id, strain_id, source, 
                           date_created, created_by)
-        self.bioent_id = bioent_id
-        self.biocon_id = biocon_id
+        self.bioentity_id = bioentity_id
+        self.bioconcept_id = bioconcept_id
         self.allele_id = allele_id
         
         self.allele_info = allele_info

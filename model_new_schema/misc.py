@@ -27,7 +27,7 @@ class Allele(Base):
 class Url(Base):
     __tablename__ = 'url'
     id = Column('url_id', Integer, primary_key=True)
-    url_type = Column('url_type', String)
+    class_type = Column('class', String)
     url = Column('url', String)
     display_name = Column('display_name', String)
     category = Column('category', String)
@@ -35,11 +35,11 @@ class Url(Base):
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
     
-    __mapper_args__ = {'polymorphic_on': url_type,
+    __mapper_args__ = {'polymorphic_on': class_type,
                        'polymorphic_identity':"URL"}
     
-    def __init__(self, url_type, display_name, source, url, category, date_created, created_by):
-        self.url_type = url_type
+    def __init__(self, class_type, display_name, source, url, category, date_created, created_by):
+        self.class_type = class_type
         self.display_name = display_name
         self.source = source
         self.url = url
@@ -51,39 +51,21 @@ class Alias(Base, EqualityByIDMixin):
     __tablename__ = 'alias'
     
     id = Column('alias_id', Integer, primary_key=True)
-    alias_type = Column('alias_type', String)
+    class_type = Column('class', String)
     display_name = Column('display_name', String)
     source = Column('source', String)
     category = Column('category', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
     
-    __mapper_args__ = {'polymorphic_on': alias_type,
+    __mapper_args__ = {'polymorphic_on': class_type,
                        'polymorphic_identity':"ALIAS"}
         
-    def __init__(self, alias_type, display_name, source, category, date_created, created_by):
-        self.alias_type = alias_type
+    def __init__(self, class_type, display_name, source, category, date_created, created_by):
+        self.class_type = class_type
         self.display_name = display_name
         self.source = source
         self.category = category
-        self.date_created = date_created
-        self.created_by = created_by
-    
-class Note(Base, EqualityByIDMixin):
-    __tablename__ = 'note'
-    
-    id = Column('note_id', Integer, primary_key=True)
-    note_type = Column('note_type', String)
-    note = Column('note', String)
-    date_created = Column('date_created', Date)
-    created_by = Column('created_by', String)
-    
-    __mapper_args__ = {'polymorphic_on': note_type,
-                       'polymorphic_identity':"NOTE"}
-        
-    def __init__(self, note_type, note, date_created, created_by):
-        self.note_type = note_type
-        self.note = note
         self.date_created = date_created
         self.created_by = created_by
         
@@ -91,15 +73,15 @@ class Paragraph(Base, EqualityByIDMixin):
     __tablename__ = 'paragraph'
     
     id = Column('paragraph_id', Integer, primary_key=True)
-    bioent_id = Column('bioent_id', Integer, ForeignKey("sprout.bioent.bioent_id"))
-    paragraph_type = Column('paragraph_type', String)
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey("Bioentity.id"))
+    class_type = Column('class', String)
     text = Column('text', CLOB)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
         
-    def __init__(self, bioent_id, paragraph_type, text, date_created, created_by):
-        self.bioent_id = bioent_id
-        self.paragraph_type = paragraph_type
+    def __init__(self, bioentity_id, class_type, text, date_created, created_by):
+        self.bioentity_id = bioentity_id
+        self.class_type = class_type
         self.text = text
         self.date_created = date_created
         self.created_by = created_by

@@ -93,7 +93,6 @@ class Reference(Base, EqualityByIDMixin):
     date_created = Column('date_created', Date)
     
     fulltext_link = Column('fulltext_url', String)
-    type = "REFERENCE"
     
     #Relationships  
     book = relationship(Book, uselist=False)
@@ -141,15 +140,15 @@ class Reference(Base, EqualityByIDMixin):
     def related_ref_str(self):
         return ', '.join([ref.name_with_link for ref in self.related_references])
     
-class ReferenceBib(Base, EqualityByIDMixin):
-    __tablename__ = 'reference_bib'
+class Bibentry(Base, EqualityByIDMixin):
+    __tablename__ = 'bibentry'
 
     id = Column('reference_id', Integer, ForeignKey(Reference.id), primary_key = True)
-    bib_entry = Column('bib_entry', CLOB)
+    text = Column('text', CLOB)
         
-    def __init__(self, reference_id, bib_entry):
+    def __init__(self, reference_id, text):
         self.id = reference_id
-        self.bib_entry = bib_entry
+        self.text = text
         
     def unique_key(self):
         return self.id
@@ -241,41 +240,41 @@ class Reftype(Base, EqualityByIDMixin):
         return (self.name, self.reference_id)
     
 class ReferenceRelation(Base, EqualityByIDMixin):
-    __tablename__ = 'referencerel'
+    __tablename__ = 'reference_relation'
 
-    id = Column('refrel_id', Integer, primary_key = True)
-    parent_id = Column('parent_reference_id', Integer, ForeignKey(Reference.id))
-    child_id = Column('child_reference_id', Integer, ForeignKey(Reference.id))
+    id = Column('reference_relation_id', Integer, primary_key = True)
+    parent_reference_id = Column('parent_reference_id', Integer, ForeignKey(Reference.id))
+    child_reference_id = Column('child_reference_id', Integer, ForeignKey(Reference.id))
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
     
     #Relationships
-    parent_ref = relationship(Reference, uselist=False, backref=backref('refrels', passive_deletes=True), primaryjoin="ReferenceRelation.parent_id==Reference.id")
-    child_ref = relationship(Reference, uselist=False, primaryjoin="ReferenceRelation.child_id==Reference.id")
+    parent_reference = relationship(Reference, uselist=False, backref=backref('reference_relations', passive_deletes=True), primaryjoin="ReferenceRelation.parent_reference_id==Reference.id")
+    child_reference = relationship(Reference, uselist=False, primaryjoin="ReferenceRelation.child_reference_id==Reference.id")
     
-    def __init__(self, refrel_id, parent_id, child_id, date_created, created_by):
-        self.id = refrel_id
-        self.parent_id = parent_id;
-        self.child_id = child_id
+    def __init__(self, reference_relation_id, parent_reference_id, child_reference_id, date_created, created_by):
+        self.id = reference_relation_id
+        self.parent_reference_id = parent_reference_id;
+        self.child_reference_id = child_reference_id
         self.date_created = date_created
         self.created_by = created_by
         
     def unique_key(self):
-        return (self.parent_id, self.child_id)
+        return (self.parent_reference_id, self.child_reference_id)
     
 class ReferenceUrl(Url):
     __tablename__ = 'referenceurl'
     id = Column('url_id', Integer, ForeignKey(Url.id), primary_key=True)
     reference_id = Column('reference_id', ForeignKey(Reference.id))
     
-    __mapper_args__ = {'polymorphic_identity': 'REFERENCE_URL',
+    __mapper_args__ = {'polymorphic_identity': 'REFERENCE',
                        'inherit_condition': id == Url.id}
     
     #Relationships
     reference = relationship(Reference, uselist=False, backref=backref('urls', passive_deletes=True))
     
     def __init__(self, display_name, source, url, category, reference_id, date_created, created_by):
-        Url.__init__(self, 'REFERENCE_URL', display_name, source, url, category, date_created, created_by)
+        Url.__init__(self, 'REFERENCE', display_name, source, url, category, date_created, created_by)
         self.reference_id = reference_id
         
     def unique_key(self):
@@ -287,14 +286,14 @@ class ReferenceAlias(Alias):
     id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)
     reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
     
-    __mapper_args__ = {'polymorphic_identity': 'REFERENCE_ALIAS',
+    __mapper_args__ = {'polymorphic_identity': 'REFERENCE',
                        'inherit_condition': id == Alias.id}
         
     #Relationships
-    reference = relationship(Reference, uselist=False, backref=backref('reference_aliases', passive_deletes=True))
+    reference = relationship(Reference, uselist=False, backref=backref('aliases', passive_deletes=True))
         
     def __init__(self, display_name, source, category, reference_id, date_created, created_by):
-        Alias.__init__(self, 'REFERENCE_ALIAS', display_name, source, category, date_created, created_by)
+        Alias.__init__(self, 'REFERENCE', display_name, source, category, date_created, created_by)
         self.reference_id = reference_id
         
     def unique_key(self):
