@@ -7,6 +7,7 @@ from model_new_schema import Base, EqualityByIDMixin
 from model_new_schema.bioconcept import Bioconcept
 from model_new_schema.bioentity import Bioentity
 from model_new_schema.reference import Reference
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 
@@ -37,6 +38,9 @@ class Interaction(Base, EqualityByIDMixin):
     bioentity2_id = Column('bioentity2_id', Integer)
     evidence_count = Column('evidence_count', Integer)
     
+    __mapper_args__ = {'polymorphic_on': class_type,
+                       'polymorphic_identity':"INTERACTION"}
+    
     def __init__(self, interaction_id, class_type, display_name, format_name, bioentity1_id, bioentity2_id):
         self.id = interaction_id
         self.class_type = class_type
@@ -48,6 +52,13 @@ class Interaction(Base, EqualityByIDMixin):
     def unique_key(self):
         return (self.format_name, self.class_type)
     
+class Geninteraction(Interaction, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'GENINTERACTION',
+                       'inherit_condition': id==Interaction.id}
+
+class Physinteraction(Interaction, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'PHYSINTERACTION',
+                       'inherit_condition': id==Interaction.id}
     
 class InteractionFamily(Base, EqualityByIDMixin):
     __tablename__ = "aux_interaction_family"
@@ -60,8 +71,9 @@ class InteractionFamily(Base, EqualityByIDMixin):
     genetic_ev_count = Column('gen_ev_count', Integer)
     physical_ev_count = Column('phys_ev_count', Integer)
     
-    def __init__(self, bioentity_id, bioentity1_id, bioentity2_id, 
+    def __init__(self, interaction_family_id, bioentity_id, bioentity1_id, bioentity2_id, 
                  genetic_ev_count, physical_ev_count, evidence_count):
+        self.id = interaction_family_id
         self.bioentity_id = bioentity_id
         self.bioentity1_id = bioentity1_id
         self.bioentity2_id = bioentity2_id
@@ -76,10 +88,13 @@ class BioconceptAncestor(Base, EqualityByIDMixin):
     __tablename__ = 'aux_bioconcept_ancestor'
 
     id = Column('bioconcept_ancestor_id', Integer, primary_key=True)
-    ancestor_bioconcept_id = Column('ancestor_bioconcept_id', Integer)
-    child_bioconcept_id = Column('child_bioconcept_id', Integer)
+    ancestor_bioconcept_id = Column('ancestor_bioconcept_id', Integer, ForeignKey(Bioconcept.id))
+    child_bioconcept_id = Column('child_bioconcept_id', Integer, ForeignKey(Bioconcept.id))
     generation = Column('generation', Integer)
     class_type = Column('class', String)
+    
+    ancestor_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('child_family', cascade='all,delete'), primaryjoin="BioconceptAncestor.ancestor_bioconcept_id==Bioconcept.id")
+    child_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('parent_family', cascade='all,delete'), primaryjoin="BioconceptAncestor.child_bioconcept_id==Bioconcept.id")
    
     def __init__(self, ancestor_bioconcept_id, child_bioconcept_id, class_type, generation):
         self.ancestor_bioconcept_id = ancestor_bioconcept_id
@@ -106,5 +121,40 @@ class BioentityReference(Base):
     def unique_key(self):
         return (self.bioentity_id, self.reference_id, self.class_type)
     
+class GeninteractionBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'GENINTERACTION',
+                       'inherit_condition': id==BioentityReference.id}
+    
+class PhysinteractionBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'PHYSINTERACTION',
+                       'inherit_condition': id==BioentityReference.id}
+    
+class GoBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'GO',
+                       'inherit_condition': id==BioentityReference.id}
+
+class PhenotypeBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'PHENOTYPE',
+                       'inherit_condition': id==BioentityReference.id}
+    
+class RegulationBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'REGULATION',
+                       'inherit_condition': id==BioentityReference.id}   
+    
+class PrimaryBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'PRIMARY_LITERATURE',
+                       'inherit_condition': id==BioentityReference.id} 
+    
+class AdditionalBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'ADDITIONAL_LITERATURE',
+                       'inherit_condition': id==BioentityReference.id} 
+
+class ReviewBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'REVIEW_LITERATURE',
+                       'inherit_condition': id==BioentityReference.id} 
+
+class OmicsBioentityReference(BioentityReference, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'OMICS_LITERATURE',
+                       'inherit_condition': id==BioentityReference.id} 
     
     

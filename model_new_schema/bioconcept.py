@@ -59,14 +59,14 @@ class BioconceptRelation(Base, EqualityByIDMixin):
     parent_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('child_bioconcepts', cascade='all,delete'), primaryjoin="BioconceptRelation.parent_bioconcept_id==Bioconcept.id")
     child_bioconcept = relationship('Bioconcept', uselist=False, backref=backref('parent_bioconcepts', cascade='all,delete'), primaryjoin="BioconceptRelation.child_bioconcept_id==Bioconcept.id")
 
-    def __init__(self, parent_bioconcept_id, child_bioconcept_id, child_bioconcept_id, relationship_type):
+    def __init__(self, parent_bioconcept_id, child_bioconcept_id, class_type, relationship_type):
         self.parent_bioconcept_id = parent_bioconcept_id
         self.child_bioconcept_id = child_bioconcept_id
-        self.child_bioconcept_id = child_bioconcept_id
+        self.class_type = class_type
         self.relationship_type = relationship_type
         
     def unique_key(self):
-        return (self.parent_bioconcept_id, self.child_bioconcept_id, self.child_bioconcept_id, self.relationship_type)
+        return (self.parent_bioconcept_id, self.child_bioconcept_id, self.class_type, self.relationship_type)
     
 class Bioconceptalias(Alias):
     __tablename__ = 'bioconceptalias'

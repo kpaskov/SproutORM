@@ -8,6 +8,7 @@ will eventually be the Bioentity classes/tables in the new SGD website schema. T
 schema on fasolt.
 '''
 from model_new_schema import Base, EqualityByIDMixin
+from model_new_schema.evidence import Evidence
 from model_new_schema.misc import Alias, Url
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -29,8 +30,7 @@ class Bioentity(Base, EqualityByIDMixin):
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
     
-    __mapper_args__ = {'polymorphic_on': class_type,
-                       'polymorphic_identity':"BIOENTITY"}
+    __mapper_args__ = {'polymorphic_on': class_type}
     
     #Relationships
     aliases = association_proxy('bioentityaliases', 'display_name')
@@ -96,7 +96,6 @@ class Locus(Bioentity):
     __tablename__ = "locusbioentity"
     
     id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id), primary_key=True)
-    qualifier = Column('qualifier', String)
     attribute = Column('attribute', String)
     name_description = Column('name_description', String)
     headline = Column('headline', String)
@@ -108,14 +107,34 @@ class Locus(Bioentity):
                        'inherit_condition': id == Bioentity.id}
     
     def __init__(self, bioentity_id, display_name, format_name, link, source, status, 
-                 locus_type, qualifier, attribute, short_description, headline, description, genetic_position,
+                 locus_type, attribute, short_description, headline, description, genetic_position,
                  date_created, created_by):
         Bioentity.__init__(self, bioentity_id, 'LOCUS',  display_name, format_name, link, source, status, date_created, created_by)
         self.locus_type = locus_type
-        self.qualifier = qualifier
         self.attribute = attribute
         self.short_description = short_description
         self.headline = headline
         self.description = description
         self.genetic_position = genetic_position
+        
+class Generalbioentity(Bioentity, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'BIOENTITY',
+                       'inherit_condition': id==Bioentity.id} 
+        
+class Qualifierevidence(Evidence):
+    __tablename__ = "qualifierevidence"
+    
+    id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
+    qualifier = Column('qualifier', String)
+    
+    __mapper_args__ = {'polymorphic_identity': 'QUALIFIER',
+                       'inherit_condition': id == Evidence.id}
+    
+    def __init__(self, evidence_id, strain_id, bioentity_id, qualifier,
+                 date_created, created_by):
+        Evidence.__init__(self, evidence_id, 'QUALIFIER', None, None, strain_id, 'SGD', date_created, created_by)
+        self.bioentity_id = bioentity_id
+        self.qualifier = qualifier
+    
         

@@ -16,7 +16,7 @@ class Regulationevidence(Evidence):
     bioentity2_id = Column('bioentity2_id', Integer, ForeignKey(Bioentity.id))
     conditions = Column('conditions', String)
        
-    __mapper_args__ = {'polymorphic_identity': "REGULATION",
+    __mapper_args__ = {'polymorphic_identity': 'REGULATION',
                        'inherit_condition': id==Evidence.id}
 
     def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source, 
