@@ -86,8 +86,8 @@ class Reference(Base, EqualityByIDMixin):
     page = Column('page', String)
     volume = Column('volume', String)
     title = Column('title', String)
-    journal_id = Column('journal_id', Integer, ForeignKey('sprout.journal.journal_id'))
-    book_id = Column('book_id', Integer, ForeignKey('sprout.book.book_id'))
+    journal_id = Column('journal_id', Integer, ForeignKey(Journal.id))
+    book_id = Column('book_id', Integer, ForeignKey(Book.id))
     doi = Column('doi', String)
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
@@ -129,7 +129,7 @@ class Reference(Base, EqualityByIDMixin):
         self.created_by = created_by
         
     def unique_key(self):
-        return self.citation
+        return self.id
             
     @hybrid_property
     def authors(self):
@@ -200,8 +200,8 @@ class AuthorReference(Base, EqualityByIDMixin):
     __tablename__ = 'author_reference'
     
     id = Column('author_reference_id', Integer, primary_key = True)
-    author_id = Column('author_id', Integer, ForeignKey('sprout.author.author_id'))
-    reference_id = Column('reference_id', Integer, ForeignKey('sprout.reference.reference_id'))
+    author_id = Column('author_id', Integer, ForeignKey(Author.id))
+    reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
     order = Column('author_order', Integer)
     author_type = Column('author_type', String)
     
@@ -262,7 +262,7 @@ class ReferenceRelation(Base, EqualityByIDMixin):
     def unique_key(self):
         return (self.parent_reference_id, self.child_reference_id)
     
-class ReferenceUrl(Url):
+class Referenceurl(Url):
     __tablename__ = 'referenceurl'
     id = Column('url_id', Integer, ForeignKey(Url.id), primary_key=True)
     reference_id = Column('reference_id', ForeignKey(Reference.id))
@@ -280,7 +280,7 @@ class ReferenceUrl(Url):
     def unique_key(self):
         return (self.url, self.reference_id)
     
-class ReferenceAlias(Alias):
+class Referencealias(Alias):
     __tablename__ = 'referencealias'
     
     id = Column('alias_id', Integer, ForeignKey(Alias.id), primary_key=True)

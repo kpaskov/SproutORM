@@ -18,15 +18,17 @@ class Experiment(Base, EqualityByIDMixin):
     format_name = Column('format_name', String)
     link = Column('obj_link', String)
     description = Column('description', String)
+    eco_id = Column('eco_id', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String) 
     
-    def __init__(self, experiment_id, display_name, format_name, link, description, date_created, created_by):
+    def __init__(self, experiment_id, display_name, format_name, link, description, eco_id, date_created, created_by):
         self.id = experiment_id
         self.display_name = display_name
         self.format_name = format_name
         self.link = link
         self.description = description
+        self.eco_id = eco_id
         self.date_created = date_created
         self.created_by = created_by
         

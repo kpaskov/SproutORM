@@ -23,9 +23,8 @@ class Regulationevidence(Evidence):
                  bioentity1_id, bioentity2_id, conditions,
                  date_created, created_by):
         Evidence.__init__(self, evidence_id, 'REGULATION', 
-                          experiment_id, reference_id, strain_id, source, 
+                          experiment_id, reference_id, strain_id, source, None,
                           date_created, created_by)
         self.bioentity1_id = bioentity1_id
         self.bioentity2_id = bioentity2_id
         self.conditions = conditions
-        

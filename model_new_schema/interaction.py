@@ -19,7 +19,6 @@ class Geninteractionevidence(Evidence):
     bait_hit = Column('bait_hit', String)
     bioentity1_id = Column('bioentity1_id', Integer, ForeignKey(Bioentity.id))
     bioentity2_id = Column('bioentity2_id', Integer, ForeignKey(Bioentity.id))
-    note = Column('note', String)
        
     __mapper_args__ = {'polymorphic_identity': "GENINTERACTION",
                        'inherit_condition': id==Evidence.id}
@@ -31,7 +30,7 @@ class Geninteractionevidence(Evidence):
                  bioentity1_id, bioentity2_id, phenotype_id, annotation_type, bait_hit, note, 
                  date_created, created_by):
         Evidence.__init__(self, evidence_id, 'GENINTERACTION', 
-                          experiment_id, reference_id, strain_id, source, 
+                          experiment_id, reference_id, strain_id, source, note,
                           date_created, created_by)
         self.bioentity1_id = bioentity1_id
         self.bioentity2_id = bioentity2_id
@@ -49,7 +48,6 @@ class Physinteractionevidence(Evidence):
     bait_hit = Column('bait_hit', String)
     bioentity1_id = Column('bioentity1_id', Integer, ForeignKey(Bioentity.id))
     bioentity2_id = Column('bioentity2_id', Integer, ForeignKey(Bioentity.id))
-    note = Column('note', String)
             
     __mapper_args__ = {'polymorphic_identity': "PHYSINTERACTION",
                        'inherit_condition': id==Evidence.id}
@@ -59,7 +57,7 @@ class Physinteractionevidence(Evidence):
                  bioentity1_id, bioentity2_id, annotation_type, modification, bait_hit, note, 
                  date_created, created_by):
         Evidence.__init__(self, evidence_id, 'PHYSINTERACTION', 
-                          experiment_id, reference_id, strain_id, source, 
+                          experiment_id, reference_id, strain_id, source, note,
                           date_created, created_by)
         self.bioentity1_id = bioentity1_id
         self.bioentity2_id = bioentity2_id

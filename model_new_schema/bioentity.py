@@ -14,7 +14,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import Integer, String, Date
+from sqlalchemy.types import Integer, String, Date, CLOB
 
 class Bioentity(Base, EqualityByIDMixin):
     __tablename__ = 'bioentity'
@@ -133,8 +133,26 @@ class Qualifierevidence(Evidence):
     
     def __init__(self, evidence_id, strain_id, bioentity_id, qualifier,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, 'QUALIFIER', None, None, strain_id, 'SGD', date_created, created_by)
+        Evidence.__init__(self, evidence_id, 'QUALIFIER', None, None, strain_id, 'SGD', None, date_created, created_by)
         self.bioentity_id = bioentity_id
         self.qualifier = qualifier
     
+class Paragraph(Base, EqualityByIDMixin):
+    __tablename__ = 'paragraph'
+    
+    id = Column('paragraph_id', Integer, primary_key=True)
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
+    class_type = Column('class', String)
+    text = Column('text', CLOB)
+    date_created = Column('date_created', Date)
+    created_by = Column('created_by', String)
         
+    def __init__(self, bioentity_id, class_type, text, date_created, created_by):
+        self.bioentity_id = bioentity_id
+        self.class_type = class_type
+        self.text = text
+        self.date_created = date_created
+        self.created_by = created_by
+        
+    def unique_key(self):
+        return (self.class_type, self.bioentity_id)

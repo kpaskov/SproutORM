@@ -72,7 +72,7 @@ class Phenotypeevidence(Evidence):
                  bioentity_id, bioconcept_id, allele_id, 
                  allele_info, reporter, reporter_desc, strain_details, experiment_details, conditions, details,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, 'PHENOTYPE', experiment_id, reference_id, strain_id, source, 
+        Evidence.__init__(self, evidence_id, 'PHENOTYPE', experiment_id, reference_id, strain_id, source, None, 
                           date_created, created_by)
         self.bioentity_id = bioentity_id
         self.bioconcept_id = bioconcept_id

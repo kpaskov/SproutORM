@@ -50,7 +50,7 @@ class Goevidence(Evidence):
                  go_evidence, annotation_type, qualifier, date_last_reviewed,
                 bioentity_id, bioconcept_id, date_created, created_by):
         Evidence.__init__(self, evidence_id, 'GO', None, reference_id, None,
-                          source, date_created, created_by)
+                          source, None, date_created, created_by)
         self.go_evidence = go_evidence
         self.annotation_type = annotation_type
         self.qualifier = qualifier

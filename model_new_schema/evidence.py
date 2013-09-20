@@ -20,6 +20,7 @@ class Evidence(Base, EqualityByIDMixin):
     experiment_id = Column('experiment_id', Integer, ForeignKey(Experiment.id))
     reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
     strain_id = Column('strain_id', Integer, ForeignKey(Strain.id))
+    note = Column('note', String)
     source = Column('source', String)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
@@ -34,13 +35,14 @@ class Evidence(Base, EqualityByIDMixin):
     
     
     def __init__(self, evidence_id, evidence_type, experiment_id, reference_id, strain_id,
-                 source, date_created, created_by):
+                 source, note, date_created, created_by):
         self.id = evidence_id
         self.experiment_id = experiment_id
         self.reference_id = reference_id
         self.strain_id = strain_id
         self.source = source
         self.evidence_type = evidence_type
+        self.note = note
         self.date_created = date_created
         self.created_by = created_by
         

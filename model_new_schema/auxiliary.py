@@ -109,7 +109,7 @@ class BioentityReference(Base):
     __tablename__ = 'aux_bioentity_reference'
     
     id = Column('bioentity_reference_id', Integer, primary_key=True)
-    bioentity_id = Column('bioentity_id', Integer, ForeignKey("sprout.bioent.bioent_id"))
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
     reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
     class_type = Column('class', String)
     

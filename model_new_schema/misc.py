@@ -4,8 +4,8 @@ Created on Mar 4, 2013
 @author: kpaskov
 '''
 from model_new_schema import Base, EqualityByIDMixin
-from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import Integer, String, Date, CLOB
+from sqlalchemy.schema import Column
+from sqlalchemy.types import Integer, String, Date
 
 class Allele(Base):
     __tablename__ = 'allele'
@@ -66,23 +66,6 @@ class Alias(Base, EqualityByIDMixin):
         self.display_name = display_name
         self.source = source
         self.category = category
-        self.date_created = date_created
-        self.created_by = created_by
-        
-class Paragraph(Base, EqualityByIDMixin):
-    __tablename__ = 'paragraph'
-    
-    id = Column('paragraph_id', Integer, primary_key=True)
-    bioentity_id = Column('bioentity_id', Integer, ForeignKey("Bioentity.id"))
-    class_type = Column('class', String)
-    text = Column('text', CLOB)
-    date_created = Column('date_created', Date)
-    created_by = Column('created_by', String)
-        
-    def __init__(self, bioentity_id, class_type, text, date_created, created_by):
-        self.bioentity_id = bioentity_id
-        self.class_type = class_type
-        self.text = text
         self.date_created = date_created
         self.created_by = created_by
        
