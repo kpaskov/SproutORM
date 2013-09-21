@@ -6,6 +6,7 @@ Created on Sep 20, 2013
 from model_new_schema import Base, EqualityByIDMixin
 from model_new_schema.bioentity import Bioentity
 from model_new_schema.evidence import Evidence
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 
@@ -68,6 +69,9 @@ class Domainevidence(Evidence):
        
     __mapper_args__ = {'polymorphic_identity': 'DOMAIN',
                        'inherit_condition': id==Evidence.id}
+    
+    #Relationships
+    domain = relationship(Domain, uselist=False)
 
     def __init__(self, evidence_id, reference_id, strain_id, source, 
                  start, end, evalue, status, date_of_run, protein_id, domain_id,
