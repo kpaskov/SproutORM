@@ -10,6 +10,7 @@ schema on fasolt.
 from model_new_schema import Base, EqualityByIDMixin
 from model_new_schema.evidence import Evidence
 from model_new_schema.misc import Alias, Url
+from model_new_schema.reference import Reference
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
@@ -120,6 +121,28 @@ class Locus(Bioentity):
 class Generalbioentity(Bioentity, EqualityByIDMixin):
     __mapper_args__ = {'polymorphic_identity': 'BIOENTITY',
                        'inherit_condition': id==Bioentity.id} 
+    
+class Protein(Bioentity):
+    __tablename__ = "proteinbioentity"
+    
+    id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id), primary_key=True)
+    locus_id = Column('locus_id', Integer, ForeignKey(Bioentity.id))
+    molecular_weight = Column('molecular_weight', Integer)
+    length = Column('protein_length', Integer)
+    n_term_seq = Column('n_term_seq', String)
+    c_term_seq = Column('c_term_seq', String)
+        
+    __mapper_args__ = {'polymorphic_identity': 'PROTEIN',
+                       'inherit_condition': id == Bioentity.id}
+    
+    def __init__(self, bioentity_id, display_name, format_name, 
+                 locus_id, length, n_term_seq, c_term_seq, link,
+                 date_created, created_by):
+        Bioentity.__init__(self, bioentity_id, 'PROTEIN',  display_name, format_name, link, 'SGD', None, date_created, created_by)
+        self.locus_id = locus_id
+        self.length = length
+        self.n_term_seq = n_term_seq
+        self.c_term_seq = c_term_seq
         
 class Qualifierevidence(Evidence):
     __tablename__ = "qualifierevidence"
@@ -146,6 +169,9 @@ class Paragraph(Base, EqualityByIDMixin):
     text = Column('text', CLOB)
     date_created = Column('date_created', Date)
     created_by = Column('created_by', String)
+    
+    #Relationships
+    references = association_proxy('paragraph_references', 'reference')
         
     def __init__(self, bioentity_id, class_type, text, date_created, created_by):
         self.bioentity_id = bioentity_id
@@ -156,3 +182,23 @@ class Paragraph(Base, EqualityByIDMixin):
         
     def unique_key(self):
         return (self.class_type, self.bioentity_id)
+    
+class ParagraphReference(Base, EqualityByIDMixin):
+    __tablename__ = 'paragraph_reference'
+    
+    id = Column('paragraph_reference_id', Integer, primary_key=True)
+    paragraph_id = Column('paragraph_id', Integer, ForeignKey(Paragraph.id))
+    reference_id = Column('reference_id', Integer, ForeignKey(Reference.id))
+    class_type = Column('class', String)
+    
+    #Relationships
+    paragraph = relationship(Paragraph, uselist=False, backref='paragraph_references')
+    reference = relationship(Reference, uselist=False)
+        
+    def __init__(self, paragraph_id, reference_id, class_type):
+        self.paragraph_id = paragraph_id
+        self.reference_id = reference_id
+        self.class_type = class_type
+        
+    def unique_key(self):
+        return (self.paragraph_id, self.reference_id)
