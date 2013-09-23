@@ -16,12 +16,13 @@ class Bindingevidence(Evidence):
     total_score = Column('total_score', String)
     expert_confidence = Column('expert_confidence', String)
     img_url = Column('img_url', String)
+    motif_id = Column('motif_id', Integer)
        
     __mapper_args__ = {'polymorphic_identity': 'Binding',
                        'inherit_condition': id==Evidence.id}
 
     def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source, 
-                 bioentity_id, total_score, expert_confidence, img_url,
+                 bioentity_id, total_score, expert_confidence, img_url, motif_id,
                  date_created, created_by):
         Evidence.__init__(self, evidence_id, 'Binding', 
                           experiment_id, reference_id, strain_id, source, None,
@@ -30,3 +31,4 @@ class Bindingevidence(Evidence):
         self.total_score = total_score
         self.expert_confidence = expert_confidence
         self.img_url = img_url
+        self.motif_id = motif_id
