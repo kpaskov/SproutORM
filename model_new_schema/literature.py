@@ -15,7 +15,7 @@ class Literatureevidence(Evidence):
     
     id = Column('evidence_id', Integer, ForeignKey(Evidence.id), primary_key=True)
     topic = Column('topic', String)
-    bioent_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
+    bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
     
     #Relationships 
     bioentity = relationship(Bioentity, uselist=False)

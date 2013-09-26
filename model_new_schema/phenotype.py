@@ -9,7 +9,7 @@ from model_new_schema.evidence import Evidence
 from model_new_schema.misc import Allele
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import Integer, String, Float
+from sqlalchemy.types import Integer, String
 
 
 class Phenotype(Bioconcept):
@@ -48,12 +48,6 @@ class Phenotypeevidence(Evidence):
     details = Column('details', String)
     experiment_details = Column('experiment_details', String)
     conditions = Column('conditions', String)
-    
-    budding_index = Column('budding_index', String)
-    glutathione_excretion = Column('glutathione_excretion', String)
-    z_score = Column('z_score', String)
-    relative_fitness_score = Column('relative_fitness_score', Float)
-    chitin_level = Column('chitin_level', Float)
 
     bioentity_id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id))
     bioconcept_id = Column('bioconcept_id', Integer, ForeignKey(Phenotype.id))

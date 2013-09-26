@@ -56,16 +56,18 @@ class EvidenceChemical(Base, EqualityByIDMixin):
     evidence_id = Column('evidence_id', Integer, ForeignKey(Evidence.id))
     chemical_id = Column('chemical_id', Integer, ForeignKey(Chemical.id))
     chemical_amt = Column('chemical_amount', String)
+    class_type = Column('class', String)
     
     #Relationships
     chemical = relationship(Chemical, uselist=False, lazy='joined')
     evidence = relationship(Evidence, backref=backref('evidence_chemicals', passive_deletes=True), uselist=False)
     chemical_name = association_proxy('chemical', 'display_name')
     
-    def __init__(self, evidence_id, chemical_id, chemical_amt):
+    def __init__(self, evidence_id, chemical_id, chemical_amt, class_type):
         self.evidence_id = evidence_id
         self.chemical_id = chemical_id
         self.chemical_amt = chemical_amt
+        self.class_type = class_type
     
     def unique_key(self):
         return (self.evidence_id, self.chemical_id)

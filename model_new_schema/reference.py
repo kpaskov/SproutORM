@@ -77,6 +77,7 @@ class Reference(Base, EqualityByIDMixin):
     
     status = Column('status', String)
     pubmed_id = Column('pubmed_id', Integer)
+    pubmed_central_id = Column('pubmed_central_id', Integer)
     pdf_status = Column('pdf_status', String)
     citation = Column('citation', String)
     year = Column('year', Integer)
@@ -92,8 +93,6 @@ class Reference(Base, EqualityByIDMixin):
     created_by = Column('created_by', String)
     date_created = Column('date_created', Date)
     
-    fulltext_link = Column('fulltext_url', String)
-    
     #Relationships  
     book = relationship(Book, uselist=False)
     journal = relationship(Journal, uselist=False)
@@ -104,7 +103,7 @@ class Reference(Base, EqualityByIDMixin):
     related_references = association_proxy('refrels', 'child_ref')
     
     def __init__(self, reference_id, display_name, format_name, link, source, 
-                 status, pubmed_id, pdf_status, citation, year, date_published, date_revised, issue, page, volume, 
+                 status, pubmed_id, pubmed_central_id, pdf_status, citation, year, date_published, date_revised, issue, page, volume, 
                  title, journal_id, book_id, doi, date_created, created_by):
         self.id = reference_id
         self.display_name = display_name
@@ -124,6 +123,7 @@ class Reference(Base, EqualityByIDMixin):
         self.journal_id = journal_id
         self.book_id = book_id
         self.pubmed_id = pubmed_id
+        self.pubmed_central_id = pubmed_central_id
         self.doi = doi
         self.date_created = date_created
         self.created_by = created_by
@@ -265,6 +265,7 @@ class ReferenceRelation(Base, EqualityByIDMixin):
 class Referenceurl(Url):
     __tablename__ = 'referenceurl'
     id = Column('url_id', Integer, ForeignKey(Url.id), primary_key=True)
+    class_type = Column('class_type', String)
     reference_id = Column('reference_id', ForeignKey(Reference.id))
     
     __mapper_args__ = {'polymorphic_identity': 'REFERENCE',
@@ -273,9 +274,10 @@ class Referenceurl(Url):
     #Relationships
     reference = relationship(Reference, uselist=False, backref=backref('urls', passive_deletes=True))
     
-    def __init__(self, display_name, source, url, category, reference_id, date_created, created_by):
-        Url.__init__(self, 'REFERENCE', display_name, source, url, category, date_created, created_by)
+    def __init__(self, display_name, source, url, reference_id, class_type, date_created, created_by):
+        Url.__init__(self, 'REFERENCE', display_name, source, url, None, date_created, created_by)
         self.reference_id = reference_id
+        self.class_type = class_type
         
     def unique_key(self):
         return (self.url, self.reference_id)

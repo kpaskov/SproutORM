@@ -71,9 +71,8 @@ class InteractionFamily(Base, EqualityByIDMixin):
     genetic_ev_count = Column('gen_ev_count', Integer)
     physical_ev_count = Column('phys_ev_count', Integer)
     
-    def __init__(self, interaction_family_id, bioentity_id, bioentity1_id, bioentity2_id, 
+    def __init__(self, bioentity_id, bioentity1_id, bioentity2_id, 
                  genetic_ev_count, physical_ev_count, evidence_count):
-        self.id = interaction_family_id
         self.bioentity_id = bioentity_id
         self.bioentity1_id = bioentity1_id
         self.bioentity2_id = bioentity2_id
