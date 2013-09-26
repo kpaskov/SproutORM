@@ -265,7 +265,7 @@ class ReferenceRelation(Base, EqualityByIDMixin):
 class Referenceurl(Url):
     __tablename__ = 'referenceurl'
     id = Column('url_id', Integer, ForeignKey(Url.id), primary_key=True)
-    class_type = Column('class_type', String)
+    class_type = Column('class', String)
     reference_id = Column('reference_id', ForeignKey(Reference.id))
     
     __mapper_args__ = {'polymorphic_identity': 'REFERENCE',
