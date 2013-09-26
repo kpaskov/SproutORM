@@ -265,7 +265,7 @@ class ReferenceRelation(Base, EqualityByIDMixin):
 class Referenceurl(Url):
     __tablename__ = 'referenceurl'
     id = Column('url_id', Integer, ForeignKey(Url.id), primary_key=True)
-    class_type = Column('class', String)
+    url_type = Column('class', String)
     reference_id = Column('reference_id', ForeignKey(Reference.id))
     
     __mapper_args__ = {'polymorphic_identity': 'REFERENCE',
@@ -274,10 +274,10 @@ class Referenceurl(Url):
     #Relationships
     reference = relationship(Reference, uselist=False, backref=backref('urls', passive_deletes=True))
     
-    def __init__(self, display_name, source, url, reference_id, class_type, date_created, created_by):
+    def __init__(self, display_name, source, url, reference_id, url_type, date_created, created_by):
         Url.__init__(self, 'REFERENCE', display_name, source, url, None, date_created, created_by)
         self.reference_id = reference_id
-        self.class_type = class_type
+        self.url_type = url_type
         
     def unique_key(self):
         return (self.url, self.reference_id)
