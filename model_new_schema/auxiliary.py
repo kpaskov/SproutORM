@@ -60,6 +60,10 @@ class Physinteraction(Interaction, EqualityByIDMixin):
     __mapper_args__ = {'polymorphic_identity': 'PHYSINTERACTION',
                        'inherit_condition': id==Interaction.id}
     
+class Reginteraction(Interaction, EqualityByIDMixin):
+    __mapper_args__ = {'polymorphic_identity': 'REGULATION',
+                       'inherit_condition': id==Interaction.id}
+    
 class InteractionFamily(Base, EqualityByIDMixin):
     __tablename__ = "aux_interaction_family"
     
@@ -78,6 +82,25 @@ class InteractionFamily(Base, EqualityByIDMixin):
         self.bioentity2_id = bioentity2_id
         self.genetic_ev_count = genetic_ev_count
         self.physical_ev_count = physical_ev_count
+        self.evidence_count = evidence_count
+        
+    def unique_key(self):
+        return (self.bioentity_id, self.bioentity1_id, self.bioentity2_id)
+    
+class RegulationFamily(Base, EqualityByIDMixin):
+    __tablename__ = "aux_regulation_family"
+    
+    id = Column('regulation_family_id', Integer, primary_key = True)
+    bioentity_id = Column('bioentity_id', Integer)
+    bioentity1_id = Column('bioentity1_id', Integer)
+    bioentity2_id = Column('bioentity2_id', Integer)
+    evidence_count = Column('evidence_count', Integer)
+    
+    def __init__(self, bioentity_id, bioentity1_id, bioentity2_id, 
+                 evidence_count):
+        self.bioentity_id = bioentity_id
+        self.bioentity1_id = bioentity1_id
+        self.bioentity2_id = bioentity2_id
         self.evidence_count = evidence_count
         
     def unique_key(self):
