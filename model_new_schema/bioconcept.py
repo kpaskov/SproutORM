@@ -47,7 +47,7 @@ class Bioconcept(Base, EqualityByIDMixin):
         return ', '.join(self.aliases)
       
 class BioconceptRelation(Base, EqualityByIDMixin):
-    __tablename__ = 'bioconcept_rel'
+    __tablename__ = 'bioconcept_relation'
 
     id = Column('bioconcept_relation_id', Integer, primary_key=True)
     parent_bioconcept_id = Column('parent_bioconcept_id', Integer, ForeignKey(Bioconcept.id))
