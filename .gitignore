@@ -7,3 +7,4 @@ eggs
 parts
 sprout_orm.egg-info
 src
+model_new_schema/config.py
