@@ -33,7 +33,7 @@ class Domain(Base, EqualityByIDMixin):
         self.link = link
         
     def unique_key(self):
-        return (self.format_name, self.source)
+        return self.format_name
     
 class Domainevidence(Evidence):
     __tablename__ = "pdomainevidence"
