@@ -34,7 +34,7 @@ class Chemical(Base):
         self.created_by = created_by
         
     def unique_key(self):
-        return (self.format_name)
+        return self.format_name
     
     @hybrid_property
     def alias_str(self):
