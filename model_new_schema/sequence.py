@@ -18,13 +18,13 @@ class Bindingevidence(Evidence):
     img_url = Column('img_url', String)
     motif_id = Column('motif_id', Integer)
        
-    __mapper_args__ = {'polymorphic_identity': 'Binding',
+    __mapper_args__ = {'polymorphic_identity': 'BINDING',
                        'inherit_condition': id==Evidence.id}
 
     def __init__(self, evidence_id, experiment_id, reference_id, strain_id, source, 
                  bioentity_id, total_score, expert_confidence, img_url, motif_id,
                  date_created, created_by):
-        Evidence.__init__(self, evidence_id, 'Binding', 
+        Evidence.__init__(self, evidence_id, 'BINDING', 
                           experiment_id, reference_id, strain_id, source, None,
                           date_created, created_by)
         self.bioentity_id = bioentity_id
