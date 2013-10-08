@@ -97,6 +97,7 @@ class Locus(Bioentity):
     __tablename__ = "locusbioentity"
     
     id = Column('bioentity_id', Integer, ForeignKey(Bioentity.id), primary_key=True)
+    dbxref = Column('dbxref', String)
     attribute = Column('attribute', String)
     name_description = Column('name_description', String)
     headline = Column('headline', String)
@@ -108,10 +109,11 @@ class Locus(Bioentity):
                        'inherit_condition': id == Bioentity.id}
     
     def __init__(self, bioentity_id, display_name, format_name, link, source, status, 
-                 locus_type, attribute, short_description, headline, description, genetic_position,
+                 locus_type, dbxref, attribute, short_description, headline, description, genetic_position,
                  date_created, created_by):
         Bioentity.__init__(self, bioentity_id, 'LOCUS',  display_name, format_name, link, source, status, date_created, created_by)
         self.locus_type = locus_type
+        self.dbxref = dbxref
         self.attribute = attribute
         self.short_description = short_description
         self.headline = headline
